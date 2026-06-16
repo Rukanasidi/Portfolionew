@@ -1,0 +1,546 @@
+/* ============================================================
+   ROOT TOKENS
+   Palette: linen, espresso ink, denim blue, terracotta, peach, sage
+   ============================================================ */
+:root {
+  --color-bg:      #F4ECDD; /* linen */
+  --color-card:    #FBF6EC; /* lighter cream for cards */
+  --color-ink:     #2F2A24; /* warm near-black */
+  --color-blue:    #3E6E8E; /* denim */
+  --color-orange:  #DD8048; /* terracotta */
+  --color-peach:   #F3BDA0;
+  --color-sage:    #A9C2A0;
+
+  --font-display: "Fraunces", Georgia, serif;
+  --font-body: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+  --font-hand: "Caveat", cursive;
+
+  --max-width: 1100px;
+  --radius: 14px;
+}
+
+/* ============================================================
+   RESET / BASE
+   ============================================================ */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--color-bg);
+  color: var(--color-ink);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: 1.15;
+}
+
+a {
+  color: inherit;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+/* Accessible focus state */
+a:focus-visible,
+button:focus-visible {
+  outline: 3px solid var(--color-orange);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: 0;
+  background: var(--color-orange);
+  color: #fff;
+  padding: 0.5em 1em;
+  z-index: 1000;
+}
+.skip-link:focus {
+  left: 0.5em;
+  top: 0.5em;
+}
+
+.eyebrow {
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+  color: var(--color-blue);
+  margin-bottom: 0.4em;
+}
+
+.handwritten {
+  font-family: var(--font-hand);
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--color-orange);
+  letter-spacing: 0.01em;
+}
+
+/* ============================================================
+   HEADER / NAV
+   ============================================================ */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(244, 236, 221, 0.85);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid rgba(47, 42, 36, 0.08);
+}
+
+.nav-wrap {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.9rem 1.5rem;
+}
+
+.logo {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.4rem;
+  text-decoration: none;
+  color: var(--color-ink);
+}
+
+.nav-links {
+  display: flex;
+  gap: 1.8rem;
+}
+
+.nav-links a {
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.98rem;
+  color: var(--color-ink);
+  padding-bottom: 4px;
+  margin-left: 1.8rem;
+  border-bottom: 2px dashed transparent;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+  border-bottom-color: var(--color-orange);
+  color: var(--color-orange);
+}
+
+/* Mobile nav toggle (hidden on desktop) */
+.nav-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 38px;
+  height: 38px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.nav-toggle span {
+  display: block;
+  width: 100%;
+  height: 2px;
+  background: var(--color-ink);
+  border-radius: 2px;
+  transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+.nav-toggle[aria-expanded="true"] span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+.nav-toggle[aria-expanded="true"] span:nth-child(2) {
+  opacity: 0;
+}
+.nav-toggle[aria-expanded="true"] span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+/* ============================================================
+   HERO
+   ============================================================ */
+.hero {
+  position: relative;
+  min-height: 88vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 6rem 1.5rem;
+  text-align: center;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 640px;
+}
+
+.hero h1 {
+  font-size: clamp(3rem, 9vw, 5.5rem);
+  margin-bottom: 0.6rem;
+}
+
+.hero-tagline {
+  font-size: clamp(1rem, 2.2vw, 1.2rem);
+  max-width: 540px;
+  margin: 0 auto 2rem;
+  color: #4a443c;
+}
+
+.hero-cta {
+  display: inline-block;
+  font-weight: 600;
+  text-decoration: none;
+  padding: 0.8rem 1.8rem;
+  border-radius: 999px;
+  background: var(--color-ink);
+  color: var(--color-bg);
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.hero-cta:hover {
+  background: var(--color-orange);
+  transform: translateY(-2px);
+}
+
+/* Woven "thread" ribbons — the one bold visual moment */
+.hero-threads {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1;
+}
+
+.thread {
+  position: absolute;
+  display: block;
+  height: 70px;
+  width: 160%;
+  border-radius: 999px;
+  opacity: 0.16;
+  filter: blur(18px);
+}
+
+.thread-blue {
+  top: 4%;
+  left: -30%;
+  background: var(--color-blue);
+  transform: rotate(-8deg);
+  animation: drift1 26s ease-in-out infinite alternate;
+}
+
+.thread-orange {
+  top: 30%;
+  left: -40%;
+  background: var(--color-orange);
+  transform: rotate(6deg);
+  height: 55px;
+  animation: drift2 22s ease-in-out infinite alternate;
+}
+
+.thread-peach {
+  bottom: 18%;
+  left: -35%;
+  background: var(--color-peach);
+  transform: rotate(-4deg);
+  height: 85px;
+  animation: drift1 30s ease-in-out infinite alternate-reverse;
+}
+
+.thread-sage {
+  bottom: -2%;
+  left: -45%;
+  background: var(--color-sage);
+  transform: rotate(9deg);
+  height: 60px;
+  animation: drift2 24s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes drift1 {
+  from { transform: translateX(0) rotate(-8deg); }
+  to   { transform: translateX(6%) rotate(-6deg); }
+}
+@keyframes drift2 {
+  from { transform: translateX(0) rotate(6deg); }
+  to   { transform: translateX(-6%) rotate(8deg); }
+}
+
+/* ============================================================
+   DISCIPLINE SECTIONS (shared)
+   ============================================================ */
+.discipline {
+  padding: 5rem 1.5rem;
+  border-top: 1px solid rgba(47, 42, 36, 0.06);
+  position: relative;
+}
+
+.discipline-inner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+}
+
+.discipline-header {
+  max-width: 620px;
+  margin-bottom: 2.5rem;
+}
+
+.discipline-header h2 {
+  font-size: clamp(2rem, 5vw, 2.8rem);
+  margin-bottom: 0.6rem;
+}
+
+.discipline-intro {
+  color: #4a443c;
+  font-size: 1.05rem;
+}
+
+.empty-state {
+  font-style: italic;
+  color: #6b6258;
+  padding: 1.5rem 0;
+  border-top: 1px dashed rgba(47, 42, 36, 0.18);
+}
+
+/* Project grid (ready for when projects are added) */
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.project-grid:empty {
+  display: none;
+}
+
+.project-card {
+  background: var(--color-card);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  box-shadow: 0 4px 14px rgba(47, 42, 36, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.project-card h3 {
+  font-size: 1.25rem;
+}
+
+.project-card p {
+  color: #4a443c;
+  font-size: 0.95rem;
+}
+
+.project-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.3rem;
+}
+
+.project-tags span {
+  font-size: 0.78rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  background: rgba(47, 42, 36, 0.06);
+  color: var(--color-ink);
+}
+
+.project-card a {
+  margin-top: 0.4rem;
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--color-blue);
+}
+
+.project-card a:hover {
+  color: var(--color-orange);
+}
+
+/* ============================================================
+   TEXTURES — each discipline gets its own "fabric"
+   All patterns are low-opacity CSS gradients, no images needed.
+   ============================================================ */
+
+/* Frontend — silk: smooth diagonal sheen, accent peach */
+.silk {
+  background-image:
+    linear-gradient(135deg, rgba(243, 189, 160, 0.25) 0%, transparent 45%),
+    linear-gradient(315deg, rgba(62, 110, 142, 0.08) 0%, transparent 50%);
+}
+.silk h2 { border-bottom: 3px solid var(--color-peach); display: inline-block; padding-bottom: 0.2rem; }
+
+/* Backend — leather: grainy, warm, accent terracotta */
+.leather {
+  background-image:
+    radial-gradient(circle at 18% 28%, rgba(221, 128, 72, 0.10) 0, transparent 40%),
+    radial-gradient(circle at 75% 65%, rgba(47, 42, 36, 0.06) 0, transparent 38%),
+    repeating-linear-gradient(45deg, rgba(47, 42, 36, 0.035) 0 2px, transparent 2px 7px);
+}
+.leather h2 { border-bottom: 3px solid var(--color-orange); display: inline-block; padding-bottom: 0.2rem; }
+
+/* Cybersecurity — lace / net mesh, accent blue */
+.lace {
+  background-image:
+    repeating-linear-gradient(45deg, rgba(62, 110, 142, 0.10) 0 1px, transparent 1px 20px),
+    repeating-linear-gradient(-45deg, rgba(62, 110, 142, 0.10) 0 1px, transparent 1px 20px);
+}
+.lace h2 { border-bottom: 3px solid var(--color-blue); display: inline-block; padding-bottom: 0.2rem; }
+
+/* ML & AI — knit / node network, accent sage */
+.knit {
+  background-image:
+    radial-gradient(circle, rgba(169, 194, 160, 0.35) 1.6px, transparent 1.6px),
+    repeating-linear-gradient(60deg, rgba(169, 194, 160, 0.07) 0 1px, transparent 1px 26px),
+    repeating-linear-gradient(-60deg, rgba(169, 194, 160, 0.07) 0 1px, transparent 1px 26px);
+  background-size: 26px 26px, auto, auto;
+}
+.knit h2 { border-bottom: 3px solid var(--color-sage); display: inline-block; padding-bottom: 0.2rem; }
+
+/* School — patchwork of all four colors */
+.patchwork {
+  background-image: repeating-conic-gradient(
+    from 0deg,
+    rgba(221, 128, 72, 0.06) 0% 25%,
+    rgba(169, 194, 160, 0.06) 25% 50%,
+    rgba(62, 110, 142, 0.06) 50% 75%,
+    rgba(243, 189, 160, 0.06) 75% 100%
+  );
+  background-size: 64px 64px;
+}
+.patchwork h2 {
+  border-bottom: 3px solid var(--color-ink);
+  border-image: linear-gradient(90deg, var(--color-blue), var(--color-orange), var(--color-sage), var(--color-peach)) 1;
+  display: inline-block;
+  padding-bottom: 0.2rem;
+}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+.site-footer {
+  border-top: 1px dashed rgba(47, 42, 36, 0.18);
+  padding: 3rem 1.5rem;
+  text-align: center;
+}
+
+.footer-inner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.footer-note {
+  font-family: var(--font-hand);
+  font-size: 1.3rem;
+  color: var(--color-orange);
+}
+
+.footer-links {
+  display: flex;
+  gap: 1.8rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.footer-links a {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0 0.9rem;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.95rem;
+  color: var(--color-ink);
+  transition: color 0.2s ease;
+}
+
+.footer-links a:hover {
+  color: var(--color-blue);
+}
+
+.footer-links svg {
+  width: 20px;
+  height: 20px;
+}
+
+.footer-copy {
+  font-size: 0.85rem;
+  color: #6b6258;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 760px) {
+  .nav-toggle {
+    display: flex;
+  }
+
+  .nav-links {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--color-bg);
+    flex-direction: column;
+    gap: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+    border-bottom: 1px solid rgba(47, 42, 36, 0.08);
+  }
+
+  .nav-links.open {
+    max-height: 320px;
+  }
+
+  .nav-links a {
+    padding: 0.9rem 1.5rem;
+    margin-left: 0;
+    border-bottom: 1px solid rgba(47, 42, 36, 0.06);
+  }
+
+  .hero {
+    min-height: 78vh;
+    padding: 4rem 1.2rem;
+  }
+}
+
+/* ============================================================
+   REDUCED MOTION
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .thread {
+    animation: none !important;
+  }
+}

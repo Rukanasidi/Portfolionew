@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rukayya — Portfolio</title>
+  <meta name="description" content="Portfolio of Rukayya — Frontend, Backend, Cybersecurity, ML &amp; AI, and school projects.">
+
+  <!-- Yarn favicon, because everything here is a little bit woven together -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>%F0%9F%A7%B6</text></svg>">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Caveat:wght@600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="nav-wrap">
+      <a href="#top" class="logo">Rukayya</a>
+
+      <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+
+      <nav class="nav-links" id="nav-links">
+        <a href="#frontend">Frontend</a>
+        <a href="#backend">Backend</a>
+        <a href="#security">Cybersecurity</a>
+        <a href="#ml-ai">ML &amp; AI</a>
+        <a href="#school">School</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+
+    <!-- ================= HERO ================= -->
+    <section id="top" class="hero">
+      <div class="hero-threads" aria-hidden="true">
+        <span class="thread thread-blue"></span>
+        <span class="thread thread-orange"></span>
+        <span class="thread thread-peach"></span>
+        <span class="thread thread-sage"></span>
+      </div>
+
+      <div class="hero-content">
+        <p class="eyebrow">Hi, I'm</p>
+        <h1>Rukayya</h1>
+        <p class="hero-tagline">
+          A cybersecurity student and full-stack developer based in Kano, Nigeria.
+          I like building things that work well, stay safe, and feel calm to use —
+          and I'm slowly weaving this space together with projects from frontend,
+          backend, security, and machine learning as I finish them.
+        </p>
+        <a href="#frontend" class="hero-cta">See what I'm building ↓</a>
+      </div>
+    </section>
+
+    <!-- ================= FRONTEND ================= -->
+    <section id="frontend" class="discipline silk">
+      <div class="discipline-inner">
+        <header class="discipline-header">
+          <p class="eyebrow handwritten">smooth &amp; considered</p>
+          <h2>Frontend</h2>
+          <p class="discipline-intro">
+            Interfaces that feel calm to use — built with HTML, CSS, and
+            JavaScript, with a growing toolkit of frameworks along the way.
+          </p>
+        </header>
+
+        <div class="project-grid" data-category="frontend"></div>
+        <p class="empty-state" data-category="frontend">
+          Projects are on the loom — first pieces coming soon.
+        </p>
+      </div>
+    </section>
+
+    <!-- ================= BACKEND ================= -->
+    <section id="backend" class="discipline leather">
+      <div class="discipline-inner">
+        <header class="discipline-header">
+          <p class="eyebrow handwritten">sturdy &amp; dependable</p>
+          <h2>Backend</h2>
+          <p class="discipline-intro">
+            The structure underneath — APIs, databases, and the logic that
+            keeps everything standing. Mostly Laravel and PHP, with some Python.
+          </p>
+        </header>
+
+        <div class="project-grid" data-category="backend"></div>
+        <p class="empty-state" data-category="backend">
+          Building the foundations — backend projects are coming soon.
+        </p>
+      </div>
+    </section>
+
+    <!-- ================= CYBERSECURITY ================= -->
+    <section id="security" class="discipline lace">
+      <div class="discipline-inner">
+        <header class="discipline-header">
+          <p class="eyebrow handwritten">keeping things safe</p>
+          <h2>Cybersecurity</h2>
+          <p class="discipline-intro">
+            Where my degree lives — threat detection, vulnerability
+            assessment, and a healthy curiosity about how things break,
+            so I can help fix them.
+          </p>
+        </header>
+
+        <div class="project-grid" data-category="security"></div>
+        <p class="empty-state" data-category="security">
+          New write-ups and projects are in progress.
+        </p>
+      </div>
+    </section>
+
+    <!-- ================= ML & AI ================= -->
+    <section id="ml-ai" class="discipline knit">
+      <div class="discipline-inner">
+        <header class="discipline-header">
+          <p class="eyebrow handwritten">patterns &amp; possibilities</p>
+          <h2>ML &amp; AI</h2>
+          <p class="discipline-intro">
+            Exploring how machine learning meets security — voice analysis,
+            fraud detection, and other curious experiments.
+          </p>
+        </header>
+
+        <div class="project-grid" data-category="ml-ai"></div>
+        <p class="empty-state" data-category="ml-ai">
+          Models are training — projects coming soon.
+        </p>
+      </div>
+    </section>
+
+    <!-- ================= SCHOOL PROJECTS ================= -->
+    <section id="school" class="discipline patchwork">
+      <div class="discipline-inner">
+        <header class="discipline-header">
+          <p class="eyebrow handwritten">from the classroom</p>
+          <h2>School Projects</h2>
+          <p class="discipline-intro">
+            Coursework, assignments, and final-year work from my
+            Cybersecurity degree at Miva Open University.
+          </p>
+        </header>
+
+        <div class="project-grid" data-category="school"></div>
+        <p class="empty-state" data-category="school">
+          Tidying up coursework — projects will land here soon.
+        </p>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p class="footer-note">Made with HTML, CSS &amp; JS — and a bit of patience.</p>
+
+      <div class="footer-links">
+        
+        <a href="mailto:rukanasidi@gmail.com" aria-label="Email">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+          <span>Email</span>
+        </a>
+        <a href="https://github.com/Rukanasidi" target="_blank" rel="noopener" aria-label="GitHub">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6 0 0 0-1.3-3.2 4.2 4.2 0 0 0-.1-3.2s-1.4-.4-3.1.8a10.8 10.8 0 0 0-5.2 0c-1.7-1.2-3.1-.8-3.1-.8a4.2 4.2 0 0 0-.1 3.2A4.6 4.6 0 0 0 6 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg>
+          <span>GitHub</span>
+        </a>
+        <a href="https://www.linkedin.com/in/rukayya-nasidi-1359771a4/" target="_blank" rel="noopener" aria-label="LinkedIn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v6h-4v-6a2 2 0 0 0-4 0v6h-4v-6a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+          <span>LinkedIn</span>
+        </a>
+      </div>
+
+      <p class="footer-copy">© <span id="year"></span> Rukayya</p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

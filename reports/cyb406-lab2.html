@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Advanced Encryption &amp; Digital Identity Management — Rukayya</title>
+  <meta name="description" content="CYB406 Lab 2: hybrid RSA+AES encryption with GPG/Kleopatra, digital signatures, and a personal digital security audit, by Rukayya.">
+
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>%F0%9F%A7%B6</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Caveat:wght@600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="nav-wrap">
+      <a href="../index.html#top" class="logo">Rukayya</a>
+      <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      <nav class="nav-links" id="nav-links">
+        <a href="../index.html#frontend">Frontend</a>
+        <a href="../index.html#backend">Backend</a>
+        <a href="../index.html#security">Cybersecurity</a>
+        <a href="../index.html#ml-ai">ML &amp; AI</a>
+        <a href="../index.html#school" class="active">School</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <header class="report-header lace">
+      <div class="report-header-inner">
+        <a class="back-link" href="../index.html#school">&larr; Back to School Projects</a>
+        <p class="eyebrow handwritten">CYB406 — Lab 2</p>
+        <h1>Advanced Encryption &amp; Digital Identity Management</h1>
+        <p class="report-meta">
+          <span>Rukayya Nasidi</span>
+          <span>Miva Open University</span>
+          <span>July 16, 2026</span>
+        </p>
+        <p class="report-summary">
+          Used GnuPG/Kleopatra to implement hybrid RSA + AES encryption and
+          digital signatures for authenticated, confidential file exchange
+          between two key pairs. Closed with a personal security audit covering
+          MFA setup and social media privacy exposure across two platforms.
+        </p>
+        <div class="report-tags">
+          <span>GPG / PGP</span>
+          <span>RSA &amp; AES</span>
+          <span>Digital Signatures</span>
+          <span>Privacy Audit</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="report-body">
+      <div class="report-body-inner">
+
+        <section class="report-exercise">
+          <h2>1. Cryptographic Logic</h2>
+          <p>
+            This lab moves beyond password-based security to practice
+            asymmetric encryption using GnuPG (via the Kleopatra front-end),
+            and closes with a personal digital security and privacy audit
+            covering social media settings, multi-factor authentication (MFA),
+            and privacy-focused browser tooling.
+          </p>
+          <p>
+            Two distinct cryptographic algorithms were used together, each
+            suited to a different part of the problem:
+          </p>
+          <ul>
+            <li>
+              <strong>AES (Advanced Encryption Standard)</strong> is a
+              symmetric-key algorithm — the same key encrypts and decrypts
+              data. It is extremely fast on large amounts of data, which is
+              why GPG uses it (in practice, a variant of it) to encrypt the
+              actual file contents. Its weakness is key distribution: both
+              parties must somehow already share the same secret key, which is
+              impractical over an insecure channel or with someone never met
+              in person.
+            </li>
+            <li>
+              <strong>RSA</strong> is an asymmetric (public-key) algorithm —
+              a mathematically linked key pair, a public key that can be
+              shared openly, and a private key that must be kept secret. RSA
+              is computationally slower than AES, so it is impractical to
+              encrypt an entire large file directly. Instead, GPG uses RSA to
+              securely encrypt a randomly generated, one-time AES session key,
+              which then encrypts the actual message or file. The recipient
+              uses their private RSA key to decrypt that session key, then
+              uses the recovered AES key to decrypt the file itself.
+            </li>
+          </ul>
+          <p>
+            This hybrid approach — RSA for key exchange, AES for bulk data
+            encryption — combines RSA's ability to solve the key-distribution
+            problem with AES's speed advantage for encrypting actual content.
+            This is exactly the workflow Kleopatra performed automatically:
+            selecting a recipient's public certificate to "encrypt for" a file
+            used RSA to protect the session key, while the file body itself
+            was handled through the faster symmetric cipher.
+          </p>
+          <p>
+            A digital signature was also applied using the sender's private
+            RSA key. Unlike encryption (which uses the recipient's public
+            key), signing uses the sender's own private key to produce a
+            signature that anyone holding the sender's public key can verify.
+            This does not protect confidentiality — it protects authenticity
+            and integrity, proving the message genuinely came from the claimed
+            sender and was not altered in transit.
+          </p>
+        </section>
+
+        <section class="report-exercise">
+          <h2>2. Verification Log</h2>
+          <p>
+            Two OpenPGP key pairs were generated in Kleopatra (RSA, 3,072-bit
+            primary and encryption subkeys, 3-year validity), simulating a
+            sender and a recipient ("peer") for the exchange:
+          </p>
+          <ul>
+            <li>Rukayya Test — fingerprint: 43A3 BCFF 5302 6D8E 5508 62C6 A0AC 1F2E BC16 74F2</li>
+            <li>Peer B Test — fingerprint: C715 803B 46A6 C92B 16A8 A0B4 9E26 BFBB 0A07 5053</li>
+          </ul>
+          <p>
+            A plain text file (<code>secret_message.txt</code>) was created,
+            then encrypted for the peer's public key and simultaneously signed
+            with the sender's private key using Kleopatra's Sign/Encrypt Files
+            function, producing <code>secret_message.txt.gpg</code>. The
+            recipient ("Peer B Test") then used their private key passphrase
+            to run Decrypt/Verify Files on this encrypted file.
+          </p>
+          <div class="figure-row">
+            <figure class="figure">
+              <img src="../assets/cyb406/lab2-000.png" alt="Kleopatra Decrypt/Verify result showing valid signature and successful decryption">
+              <figcaption>Figure 2.1 — Kleopatra Decrypt/Verify: decryption completed at 100%, with a confirmed valid signature by rukayya.nasidi@miva.edu.ng and both keys listed as recipients.</figcaption>
+            </figure>
+          </div>
+          <p>
+            The result confirmed three things simultaneously: (1) decryption
+            succeeded, meaning only the intended recipient's private key could
+            unlock the file; (2) the digital signature was verified as valid,
+            confirming the file genuinely originated from the claimed sender
+            and had not been tampered with in transit; and (3) the
+            certificate's trust chain was accepted by Kleopatra as "ultimately
+            trusted."
+          </p>
+          <p>
+            <strong>On hash collisions and integrity:</strong> a cryptographic
+            hash function takes an input of any size and produces a
+            fixed-size digest. A digital signature works by signing the hash
+            of a message, not the message itself, because hashing is much
+            faster than signing the entire file with RSA. A hash collision
+            occurs when two different inputs produce the same hash output —
+            an event that should be computationally infeasible for a secure
+            hash algorithm such as SHA-256. If an attacker could find a
+            collision, they could theoretically substitute a malicious file
+            with the same hash as the original, allowing a valid signature to
+            be attached to forged content without detection. This is why
+            deprecated hash functions like MD5 and SHA-1, both of which have
+            known practical collision attacks, are no longer considered safe
+            for digital signatures, and why modern PGP implementations
+            default to SHA-256 or stronger.
+          </p>
+        </section>
+
+        <section class="report-exercise">
+          <h2>3. Audit Reflection</h2>
+          <p>
+            A personal digital audit was carried out across two active social
+            media accounts (Instagram and Facebook), account security (MFA),
+            and browser privacy tooling.
+          </p>
+          <h3>Social media privacy settings</h3>
+          <div class="figure-row">
+            <figure class="figure">
+              <img src="../assets/cyb406/lab2-001.png" alt="Instagram account privacy set to Public">
+              <figcaption>Figure 2.2 — Instagram Account Privacy: account is Public (Private account toggle OFF).</figcaption>
+            </figure>
+            <figure class="figure">
+              <img src="../assets/cyb406/lab2-002.png" alt="Instagram tags and mentions allowed from everyone">
+              <figcaption>Figure 2.3 — Instagram Tags &amp; Mentions: allowed from everyone, manual approval OFF.</figcaption>
+            </figure>
+            <figure class="figure">
+              <img src="../assets/cyb406/lab2-003.png" alt="Facebook audience settings, Reels set to Public">
+              <figcaption>Figure 2.4 — Facebook Audience: future posts visible to Friends, but Reels set to Public.</figcaption>
+            </figure>
+            <figure class="figure">
+              <img src="../assets/cyb406/lab2-004.png" alt="Facebook phone number restricted to only me">
+              <figcaption>Figure 2.5 — Facebook profile info: phone number correctly restricted to "Only me".</figcaption>
+            </figure>
+            <figure class="figure">
+              <img src="../assets/cyb406/lab2-005.png" alt="Facebook discoverability via external search engines enabled">
+              <figcaption>Figure 2.6 — Facebook discoverability: external search engines allowed to link to the profile.</figcaption>
+            </figure>
+          </div>
+          <p>
+            These settings have remained largely unchanged since the accounts
+            were created approximately four years ago — itself a notable
+            finding: privacy settings are typically configured once, during
+            onboarding, and rarely revisited as an account's follower count,
+            content volume, and personal risk profile grow over time. Specific
+            exposures identified: an Instagram account left fully Public
+            rather than Private; tag and mention approval left open to
+            everyone with no manual review step; Facebook Reels set to Public
+            despite ordinary posts being restricted to Friends; and the
+            Facebook profile still discoverable through external search
+            engines. By contrast, the phone number field on Facebook was
+            already correctly restricted to "Only me," showing that privacy
+            awareness was applied selectively rather than uniformly — most
+            likely because that particular setting was noticed and
+            consciously changed at some point, while less prominent settings
+            were left at their platform defaults.
+          </p>
+
+          <h3>Multi-Factor Authentication (MFA)</h3>
+          <p>
+            MFA is already enabled on all personal and academic email
+            accounts, using phone-based passkey authentication in combination
+            with a registered recovery email as a fallback channel. This
+            constitutes a layered authentication model: something known
+            (password), something possessed (the phone/passkey), and a
+            recovery path if the primary device is unavailable. Passkey-based
+            authentication is also more phishing-resistant than legacy SMS or
+            email one-time-passcodes, since it relies on cryptographic
+            challenge-response tied to the physical device rather than a code
+            that can be intercepted, forwarded, or socially engineered out of
+            the account holder.
+          </p>
+          <div class="figure-row">
+            <figure class="figure">
+              <img src="../assets/cyb406/lab2-006.png" alt="Google Account Security and sign-in page showing 2-Step Verification on since August 2025">
+              <figcaption>2-Step Verification active on the academic Google account since Aug 19, 2025, alongside a registered passkey.</figcaption>
+            </figure>
+          </div>
+
+          <h3>Privacy-focused browser extension</h3>
+          <p>
+            uBlock Origin Lite was installed on the primary desktop browser
+            (Google Chrome) to reduce third-party ad and tracker exposure
+            during normal browsing.
+          </p>
+          <div class="figure-row">
+            <figure class="figure">
+              <img src="../assets/cyb406/lab2-007.png" alt="uBlock Origin Lite listing in the Chrome Web Store">
+              <figcaption>Figure 2.7 — uBlock Origin Lite.</figcaption>
+            </figure>
+            <figure class="figure">
+              <img src="../assets/cyb406/lab2-008.png" alt="uBlock Origin Lite installed and enabled with site access set to on all sites">
+              <figcaption>Figure 2.8 — uBlock Origin Lite installed and enabled ("On"), with site access set to "On all sites".</figcaption>
+            </figure>
+          </div>
+
+          <h3>Behavioural vulnerabilities and overall reflection</h3>
+          <p>
+            Taken together, this audit shows an uneven security posture:
+            strong, deliberate protections exist where the perceived stakes
+            are obvious (email account takeover, phone number exposure),
+            while lower-salience settings such as content visibility defaults
+            and third-party tracking were left unmanaged for years simply
+            because they were never revisited. This pattern — treating
+            security as a one-time setup task rather than an ongoing practice
+            — is one of the most common behavioural vulnerabilities in
+            personal digital security, and is precisely the gap that a
+            periodic self-audit, such as this lab exercise, is designed to
+            close. Following this audit, specific low-effort corrections are
+            now planned: switching Instagram to Private, requiring manual tag
+            approval on both platforms, and disabling external search-engine
+            indexing on Facebook.
+          </p>
+        </section>
+
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p class="footer-note">Made with HTML, CSS &amp; JS — and a bit of patience.</p>
+      <div class="footer-links">
+        <a href="mailto:rukanasidi@gmail.com" aria-label="Email">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+          <span>Email</span>
+        </a>
+        <a href="https://github.com/Rukanasidi" target="_blank" rel="noopener" aria-label="GitHub">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6 0 0 0-1.3-3.2 4.2 4.2 0 0 0-.1-3.2s-1.4-.4-3.1.8a10.8 10.8 0 0 0-5.2 0c-1.7-1.2-3.1-.8-3.1-.8a4.2 4.2 0 0 0-.1 3.2A4.6 4.6 0 0 0 6 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg>
+          <span>GitHub</span>
+        </a>
+        <a href="https://www.linkedin.com/in/rukayya-nasidi-1359771a4/" target="_blank" rel="noopener" aria-label="LinkedIn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v6h-4v-6a2 2 0 0 0-4 0v6h-4v-6a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+          <span>LinkedIn</span>
+        </a>
+      </div>
+      <p class="footer-copy">© <span id="year"></span> Rukayya</p>
+    </div>
+  </footer>
+
+  <script src="../script.js"></script>
+</body>
+</html>

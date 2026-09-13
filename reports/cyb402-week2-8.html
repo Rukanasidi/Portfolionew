@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Steganography: Watermarking &amp; Countermeasures — Rukayya</title>
+  <meta name="description" content="CYB402 Weeks 2-8: encryption vs data hiding, digital watermarking, zero-width-character text steganography, and defense-in-depth countermeasures, by Rukayya.">
+
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>%F0%9F%A7%B6</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Caveat:wght@600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="nav-wrap">
+      <a href="../index.html#top" class="logo">Rukayya</a>
+      <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      <nav class="nav-links" id="nav-links">
+        <a href="../index.html#frontend">Frontend</a>
+        <a href="../index.html#backend">Backend</a>
+        <a href="../index.html#security">Cybersecurity</a>
+        <a href="../index.html#ml-ai">ML &amp; AI</a>
+        <a href="../index.html#school" class="active">School</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <header class="report-header lace">
+      <div class="report-header-inner">
+        <a class="back-link" href="../index.html#school">&larr; Back to School Projects</a>
+        <p class="eyebrow handwritten">CYB402 — Weeks 2–8</p>
+        <h1>Steganography: Watermarking &amp; Countermeasures</h1>
+        <p class="report-meta">
+          <span>Rukayya Nasidi</span>
+          <span>Miva Open University</span>
+          <span>Exercises 1–9</span>
+        </p>
+        <p class="report-summary">
+          Compared encryption vs. data hiding hands-on, built both visible and
+          invisible digital watermarks, and implemented zero-width-character
+          text steganography from scratch in Python. Layered GPG encryption
+          underneath Steghide embedding as a defense-in-depth countermeasure,
+          and tested how compression destroys LSB-hidden payloads.
+        </p>
+        <div class="report-tags">
+          <span>Watermarking</span>
+          <span>Zero-width Unicode</span>
+          <span>Defense-in-Depth</span>
+          <span>Python</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="report-body">
+      <div class="report-body-inner">
+
+        <section class="report-exercise">
+          <h2>Exercise 1 — Understanding Data Hiding and Steganography</h2>
+          <p class="objective">Objective: understand the concept of data hiding and its role in cybersecurity, and demonstrate it with a simple practical example.</p>
+          <p>
+            Copied a JPEG background image as a cover file, embedded a short
+            text message with <code>steghide embed</code> (passphrase
+            protected), and opened the resulting image to visually confirm no
+            detectable change.
+          </p>
+          <p>
+            Data hiding is the practice of concealing the <em>existence</em>
+            of information, not just its content — this distinguishes it from
+            encryption, which scrambles content but does not disguise the
+            fact that a protected message exists. In a cybersecurity context,
+            this matters because it protects confidentiality even under
+            active monitoring: a network observer sees only an
+            ordinary-looking image file, with nothing to indicate that a
+            message is present at all, let alone what it contains.
+          </p>
+          <div class="figure-row">
+            <figure class="figure"><img src="../assets/cyb402/week2-000.png" alt="Terminal embedding a hidden message into a countryside cover image"><figcaption>Embedding a message into a countryside cover photo.</figcaption></figure>
+            <figure class="figure"><img src="../assets/cyb402/week2-001.png" alt="Countryside cover image showing no visible change after embedding"><figcaption>The resulting image — no visible artefacts despite carrying a hidden file.</figcaption></figure>
+          </div>
+        </section>
+
+        <section class="report-exercise">
+          <h2>Exercise 2 — Encryption vs Data Hiding</h2>
+          <p class="objective">Objective: compare encryption and data hiding hands-on, understanding their differences and use cases.</p>
+          <p>
+            Encrypted a message with GPG (AES-256 symmetric), displayed the
+            encrypted file's raw contents to observe what encrypted output
+            looks like, and separately hid a different message inside a JPEG
+            cover image using Steghide.
+          </p>
+          <p>
+            The encrypted file appeared as an unreadable block of
+            binary/symbolic characters — visibly and unmistakably scrambled.
+            The steganographic image, by contrast, displayed as a completely
+            ordinary desert landscape photograph with no visible indication
+            that any data was hidden inside it.
+          </p>
+          <p>
+            <strong>Purpose:</strong> encryption protects the confidentiality
+            of a message's content, assuming an observer already knows a
+            protected message exists. Data hiding protects the existence of
+            the message itself, so an observer may not even realise there is
+            anything to investigate. <strong>Detectability:</strong> an
+            encrypted file is trivially identifiable as "something protected"
+            purely from its appearance (high entropy, non-readable
+            structure), even without breaking the encryption. A
+            steganographic file is designed to be statistically and visually
+            indistinguishable from an unmodified original, making detection
+            significantly harder without specialised steganalysis. In
+            practice, the two techniques are complementary rather than
+            competing: encrypting a message before hiding it means that even
+            successful detection and extraction of the hidden data does not
+            immediately expose its content.
+          </p>
+          <div class="figure-row">
+            <figure class="figure"><img src="../assets/cyb402/week2-002.png" alt="Desert landscape stego image showing no visible change"><figcaption>Desert landscape cover — visually ordinary after LSB embedding.</figcaption></figure>
+            <figure class="figure"><img src="../assets/cyb402/week2-003.png" alt="Terminal showing encrypted GPG output vs steganographic embedding side by side"><figcaption>Encrypted file (unreadable ciphertext) vs. hidden data (no visible trace).</figcaption></figure>
+          </div>
+        </section>
+
+        <section class="report-exercise">
+          <h2>Exercise 3 — Watermarking for Copyright Protection</h2>
+          <p class="objective">Objective: explore digital watermarking techniques for protecting intellectual property, both visible and invisible.</p>
+          <p>
+            Created a visible, semi-transparent text watermark
+            ("© Ruqayya CYB402") on a cover image using ImageMagick's
+            <code>convert</code> utility, and separately embedded an
+            invisible watermark — a short copyright/ownership text string —
+            into a different copy of the same image using Steghide, then
+            extracted it back out to verify it could be recovered on demand.
+          </p>
+          <p>
+            The visible watermark rendered correctly as small, semi-transparent
+            identifying text in the bottom-right corner — noticeable but not
+            obtrusive. The invisible watermark embedded and extracted
+            successfully, with the recovered text matching exactly:
+            "Copyright: Ruqayya, CYB402, 2026".
+          </p>
+          <p>
+            Visible watermarking is the simpler, lower-effort approach and
+            immediately signals ownership, but it permanently alters the
+            image's appearance and can be cropped or edited out relatively
+            easily. Invisible watermarking preserves the original image
+            completely, and ownership can be proven on demand — but a casual
+            viewer has no visible indication the image is protected at all,
+            and the watermark can be destroyed if the image is later
+            recompressed or reformatted. Visible watermarks deter casual
+            reuse, while invisible watermarks support forensic proof of
+            ownership after the fact, provided the file has not been
+            re-processed.
+          </p>
+          <div class="figure-row">
+            <figure class="figure"><img src="../assets/cyb402/week2-004.png" alt="Terminal applying a visible text watermark with ImageMagick convert"><figcaption>Applying a visible text watermark with ImageMagick.</figcaption></figure>
+            <figure class="figure"><img src="../assets/cyb402/week2-005.png" alt="Cloud landscape image with a small visible watermark in the corner"><figcaption>Visible watermark rendered in the bottom-right corner.</figcaption></figure>
+          </div>
+        </section>
+
+        <section class="report-exercise">
+          <h2>Exercise 4 — Techniques for Image Steganography (LSB Substitution)</h2>
+          <p class="objective">Objective: apply LSB substitution for image steganography and confirm the cover image remains visually unchanged.</p>
+          <p>
+            Converted a PNG background image to JPEG (Steghide's required
+            format), embedded a descriptive text message, extracted it back
+            out and confirmed it matched exactly, then visually inspected the
+            final stego image for any detectable change.
+          </p>
+          <p>
+            Steghide alters the least-significant bit of pixel colour values
+            in the cover image to encode the hidden message's binary data —
+            a change small enough to be imperceptible to the human eye but
+            large enough, cumulatively, to be recoverable with the correct
+            extraction key. Its main limitation, established elsewhere in
+            this module, is that the technique is entirely dependent on the
+            exact byte values of the carrier file and does not survive
+            recompression or reformatting.
+          </p>
+          <div class="figure-row">
+            <figure class="figure"><img src="../assets/cyb402/week2-006.png" alt="Terminal embedding and extracting a message from a Mount Fuji cover image"><figcaption>Embedding and extracting a message with a Mount Fuji cover image.</figcaption></figure>
+            <figure class="figure"><img src="../assets/cyb402/week2-007.png" alt="Mount Fuji landscape image showing no visible distortion after embedding"><figcaption>No visible distortion, discolouration, or artefacts after embedding.</figcaption></figure>
+          </div>
+        </section>
+
+        <section class="report-exercise">
+          <h2>Exercise 5 — Audio Steganography</h2>
+          <p class="objective">Objective: practice hiding data within an audio file.</p>
+          <p>
+            Copied a system WAV sound file (Ubuntu's built-in ALSA sound set)
+            to use as the audio carrier, embedded a text message with
+            <code>steghide embed</code>, extracted it back out and confirmed
+            it matched exactly, then played the resulting audio with
+            <code>aplay</code> to confirm it remained a valid, playable WAV
+            file after embedding.
+          </p>
+          <p>
+            Audio steganography applies the same underlying principle as
+            image steganography — encoding hidden data into the least
+            significant, perceptually insignificant details of the carrier —
+            but operates on audio sample values rather than pixel colour
+            values. Steghide was used here rather than a Windows-only tool
+            such as DeepSound, since the lab environment is Linux-based. The
+            hidden data remained inaudible to a human listener, confirmed by
+            successfully replaying the file without any audible distortion.
+          </p>
+          <div class="figure-row">
+            <figure class="figure"><img src="../assets/cyb402/week2-008.png" alt="Terminal embedding a message into a WAV audio file and playing it back with aplay"><figcaption>Embedding a message into a WAV carrier and confirming playback with aplay.</figcaption></figure>
+          </div>
+        </section>
+
+        <section class="report-exercise">
+          <h2>Exercise 6 — Text Steganography</h2>
+          <p class="objective">Objective: implement text-based steganography by hiding a message within the encoding of a plain text file.</p>
+          <p>
+            Wrote a short Python script to convert a secret message to binary
+            and encode each bit as an invisible zero-width Unicode character
+            (zero-width space for "0", zero-width non-joiner for "1"),
+            appended to the end of an innocuous cover sentence, then compared
+            byte counts of the original cover file and the hidden version to
+            demonstrate the presence of hidden data despite no visible
+            difference. A second script decoded the zero-width characters
+            back into the original message.
+          </p>
+          <p>
+            The file containing the hidden message displayed identically to
+            the plain cover sentence when viewed with <code>cat</code> — no
+            visible difference at all. Byte-count comparison showed a clear
+            size difference: 39 bytes for the plain cover text versus 87
+            bytes for the version with hidden zero-width characters. The
+            decoding script correctly recovered the original 2-character
+            secret message ("HI") from the invisible characters.
+          </p>
+          <p>
+            This exercise used zero-width Unicode characters (U+200B, U+200C)
+            as the hiding mechanism, since it is a reliable and easily
+            reversible method to implement and verify programmatically. The
+            key finding — text and content appearing visually identical to
+            the human eye while differing at the byte level — is the
+            clearest, most direct demonstration in the module of the core
+            principle of data hiding: an observer must inspect the raw
+            underlying data, not just the rendered output, to detect anything
+            unusual. This method's main weakness is fragility to text
+            processing: copying the text into many applications, or any
+            process that strips non-printable Unicode characters, would
+            destroy the hidden message entirely — arguably making it even
+            more fragile than image or audio LSB steganography.
+          </p>
+          <div class="figure-row">
+            <figure class="figure"><img src="../assets/cyb402/week2-009.png" alt="Terminal running a Python script to embed zero-width Unicode characters into text"><figcaption>Python script embedding zero-width-character binary data into a cover sentence.</figcaption></figure>
+            <figure class="figure"><img src="../assets/cyb402/week2-010.png" alt="Terminal running a Python script to decode the hidden message from zero-width characters"><figcaption>Decoding script recovering the hidden 2-character message.</figcaption></figure>
+          </div>
+        </section>
+
+        <section class="report-exercise">
+          <h2>Exercise 7 — Challenges in Data Hiding Detection</h2>
+          <p class="objective">Objective: investigate the challenges in steganalysis, including the effect of compression.</p>
+          <p>
+            Re-ran StegExpose against the Week 1 test folder to confirm
+            whether the tool/runtime compatibility issue persisted, performed
+            a compression round-trip test on the Exercise 5 audio carrier
+            (WAV &rarr; MP3 via LAME &rarr; back to WAV), then attempted to
+            extract the previously embedded message from the recompressed
+            file.
+          </p>
+          <p>
+            StegExpose again produced no console output, consistent with the
+            Week 1 finding. Extraction from the recompressed audio failed
+            three times in a row with "could not extract any data with that
+            passphrase!", despite the correct passphrase — confirming the
+            hidden message did not survive the MP3 compression round trip.
+            Interestingly, file sizes for the original and recompressed WAV
+            files were identical (137,134 bytes each), since WAV file size is
+            determined by duration and audio format rather than the specific
+            sample values — meaning file-size comparison, unlike the image
+            compression test, was not a useful detection signal here.
+          </p>
+          <div class="callout">
+            <strong>Step-by-step guide — basic steganalysis on a suspect file:</strong>
+            <ol style="margin-left:1.2rem; margin-top:0.6rem;">
+              <li>Establish a clean baseline (same source, same original size/format).</li>
+              <li>Compare file size (<code>ls -la</code> / <code>wc -c</code>) — even a few KB difference can indicate embedded data.</li>
+              <li>Check metadata with <code>exiftool</code> — rules out obvious anomalies and gives a property baseline.</li>
+              <li>Attempt automated statistical analysis (e.g. StegExpose) — treat a failed run as a documented tool limitation, not proof the file is clean.</li>
+              <li>Inspect the LSB plane visually against the baseline for structural irregularities.</li>
+              <li>Cross-reference all signals — treat a finding as credible only when multiple independent methods point the same way.</li>
+            </ol>
+          </div>
+          <div class="figure-row">
+            <figure class="figure"><img src="../assets/cyb402/week2-011.png" alt="Terminal re-running StegExpose and installing LAME encoder"><figcaption>Re-testing StegExpose and installing LAME for MP3 conversion.</figcaption></figure>
+            <figure class="figure"><img src="../assets/cyb402/week2-012.png" alt="Terminal encoding WAV to MP3 and decoding back to WAV with LAME"><figcaption>WAV &rarr; MP3 &rarr; WAV recompression round-trip with LAME.</figcaption></figure>
+            <figure class="figure"><img src="../assets/cyb402/week2-013.png" alt="Terminal showing extraction failing three times after recompression"><figcaption>Extraction failing repeatedly after lossy recompression, despite the correct passphrase.</figcaption></figure>
+          </div>
+        </section>
+
+        <section class="report-exercise">
+          <h2>Exercise 8 — Practical Countermeasures for Data Hiding</h2>
+          <p class="objective">Objective: explore countermeasures to mitigate data-hiding risks, specifically combining encryption with steganography.</p>
+          <p>
+            Encrypted a message using GPG with AES-256, converted a PNG cover
+            image to JPEG and embedded the encrypted (not plaintext) file
+            into it using Steghide, then extracted and decrypted it,
+            confirming both layers of protection worked together correctly.
+          </p>
+          <p>
+            Combining encryption with steganography provides defence in
+            depth against data hiding's core weakness: concealment alone
+            offers no protection once an attacker successfully detects and
+            extracts the hidden file, since Steghide's own commands are
+            publicly documented and simple to run. With an encryption layer
+            added, successful detection and extraction only yields
+            ciphertext, protected by a separate passphrase the attacker does
+            not have — meaning the two failure points (detection of the
+            hidden file, and compromise of the encryption key) must both
+            occur for the attacker to succeed.
+          </p>
+          <div class="figure-row">
+            <figure class="figure"><img src="../assets/cyb402/week2-014.png" alt="Terminal encrypting a message with GPG and embedding it into a converted JPEG image, then extracting and decrypting it"><figcaption>GPG encryption &rarr; Steghide embed &rarr; extract &rarr; GPG decrypt, all completing successfully.</figcaption></figure>
+          </div>
+        </section>
+
+        <section class="report-exercise">
+          <h2>Exercise 9 — Watermarking for Digital Media Protection</h2>
+          <p class="objective">Objective: implement digital watermarking to indicate ownership of a media asset, and verify it can be recovered on demand.</p>
+          <p>
+            Embedded an ownership statement (name, course code, institution,
+            year) into a converted JPEG image using Steghide, confirmed the
+            resulting image displayed with no visible alteration, and
+            extracted the watermark to verify it could be recovered
+            correctly, simulating an ownership verification check.
+          </p>
+          <p>
+            Extraction succeeded, recovering the exact ownership string:
+            "OWNERSHIP: Ruqayya | CYB402 | MIVA Open University | 2026". This
+            exercise consolidates the invisible-watermarking approach from
+            Exercise 3, applied specifically as a copyright/ownership
+            verification workflow: the media asset itself is unaltered in
+            appearance, but an owner can prove authorship at any time by
+            extracting the embedded string with the correct tool and
+            passphrase — protecting digital media in a way a visible
+            watermark cannot, since nothing about the image's appearance
+            changes. As established throughout this module's compression
+            testing, this protection is contingent on the file not being
+            recompressed or reformatted after distribution — a limitation
+            worth disclosing alongside any real-world use of this technique.
+          </p>
+          <div class="figure-row">
+            <figure class="figure"><img src="../assets/cyb402/week2-015.png" alt="Wildlife landscape image used as the watermark carrier, no visible alteration"><figcaption>Media asset — a wildlife landscape — unaltered after invisible watermark embedding.</figcaption></figure>
+            <figure class="figure"><img src="../assets/cyb402/week2-016.png" alt="Terminal extracting and verifying the embedded ownership watermark"><figcaption>Extracting and verifying the embedded ownership string on demand.</figcaption></figure>
+            <figure class="figure"><img src="../assets/cyb402/week2-017.png" alt="Terminal confirming the recovered ownership string matches exactly"><figcaption>Recovered ownership string matches exactly what was embedded.</figcaption></figure>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p class="footer-note">Made with HTML, CSS &amp; JS — and a bit of patience.</p>
+      <div class="footer-links">
+        <a href="mailto:rukanasidi@gmail.com" aria-label="Email">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+          <span>Email</span>
+        </a>
+        <a href="https://github.com/Rukanasidi" target="_blank" rel="noopener" aria-label="GitHub">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6 0 0 0-1.3-3.2 4.2 4.2 0 0 0-.1-3.2s-1.4-.4-3.1.8a10.8 10.8 0 0 0-5.2 0c-1.7-1.2-3.1-.8-3.1-.8a4.2 4.2 0 0 0-.1 3.2A4.6 4.6 0 0 0 6 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg>
+          <span>GitHub</span>
+        </a>
+        <a href="https://www.linkedin.com/in/rukayya-nasidi-1359771a4/" target="_blank" rel="noopener" aria-label="LinkedIn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v6h-4v-6a2 2 0 0 0-4 0v6h-4v-6a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+          <span>LinkedIn</span>
+        </a>
+      </div>
+      <p class="footer-copy">© <span id="year"></span> Rukayya</p>
+    </div>
+  </footer>
+
+  <script src="../script.js"></script>
+</body>
+</html>

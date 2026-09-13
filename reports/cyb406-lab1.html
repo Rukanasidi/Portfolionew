@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Secure Investigative Environment (Tor Sandbox) — Rukayya</title>
+  <meta name="description" content="CYB406 Lab 1: building an isolated Tor sandbox and verifying it doesn't leak identity, by Rukayya.">
+
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>%F0%9F%A7%B6</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Caveat:wght@600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="nav-wrap">
+      <a href="../index.html#top" class="logo">Rukayya</a>
+      <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      <nav class="nav-links" id="nav-links">
+        <a href="../index.html#frontend">Frontend</a>
+        <a href="../index.html#backend">Backend</a>
+        <a href="../index.html#security">Cybersecurity</a>
+        <a href="../index.html#ml-ai">ML &amp; AI</a>
+        <a href="../index.html#school" class="active">School</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <header class="report-header lace">
+      <div class="report-header-inner">
+        <a class="back-link" href="../index.html#school">&larr; Back to School Projects</a>
+        <p class="eyebrow handwritten">CYB406 — Lab 1</p>
+        <h1>Secure Investigative Environment (Tor Sandbox)</h1>
+        <p class="report-meta">
+          <span>Rukayya Nasidi</span>
+          <span>Miva Open University</span>
+          <span>July 16, 2026</span>
+        </p>
+        <p class="report-summary">
+          Built an isolated VirtualBox/Ubuntu sandbox with clipboard, drag-and-drop,
+          and shared folders disabled, then hardened Tor Browser to its "Safest"
+          security level. Verified there was no identity leakage by comparing DNS
+          resolution, exit-node IP, and geolocation across Tor vs. regular browsing.
+        </p>
+        <div class="report-tags">
+          <span>Tor</span>
+          <span>VirtualBox</span>
+          <span>DNS Leak Testing</span>
+          <span>OPSEC</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="report-body">
+      <div class="report-body-inner">
+
+        <section class="report-exercise">
+          <h2>1. Configuration Documentation</h2>
+          <p>
+            This lab establishes an isolated "sandbox" environment to safely access
+            anonymized and hidden networks without exposing the host machine to
+            risk. A Type-2 hypervisor (Oracle VirtualBox) was used to host a
+            Ubuntu 24.04.4 LTS guest operating system.
+          </p>
+          <p>
+            The virtual machine was built using Oracle VirtualBox as the Type-2
+            hypervisor, hosting Ubuntu 24.04.4 LTS as the guest operating system.
+            Storage was migrated from the installation ISO (mounted on the IDE
+            controller) to a dedicated virtual hard disk (.vdi) on a SATA
+            controller, confirming the OS installation was self-contained and
+            independent of any physical or virtual optical media.
+          </p>
+          <div class="figure-row">
+            <figure class="figure">
+              <img src="../assets/cyb406/lab1-000.png" alt="VirtualBox Storage settings confirming the IDE controller is empty and the OS resides on its own virtual disk">
+              <figcaption>Figure 1.1 — VirtualBox Storage settings confirming the IDE controller is empty and the installed OS resides on its own virtual disk (SATA controller).</figcaption>
+            </figure>
+          </div>
+          <p>
+            To isolate the guest from the host and prevent malware or data from
+            crossing between environments, the following settings were required
+            under VM Settings &rarr; General &rarr; Advanced:
+          </p>
+          <ul>
+            <li>Shared Clipboard: Disabled</li>
+            <li>Drag'n'Drop: Disabled</li>
+            <li>Shared Folders: none configured</li>
+          </ul>
+          <div class="figure-row">
+            <figure class="figure">
+              <img src="../assets/cyb406/lab1-001.png" alt="VirtualBox General Advanced settings showing Shared Clipboard and Drag-and-Drop disabled">
+              <figcaption>VM General &rarr; Advanced: Shared Clipboard and Drag-and-Drop set to Disabled.</figcaption>
+            </figure>
+            <figure class="figure">
+              <img src="../assets/cyb406/lab1-002.png" alt="VirtualBox Shared Folders settings showing no folders configured">
+              <figcaption>Shared Folders left empty — no host/guest folder crossover.</figcaption>
+            </figure>
+          </div>
+          <p>
+            A clean snapshot ("Clean install — pre-TOR") was also taken after the
+            base OS installation, allowing the environment to be reverted to a
+            known-safe state after any risky browsing session, in line with the
+            snapshot management practice required for Week 8.
+          </p>
+        </section>
+
+        <section class="report-exercise">
+          <h2>2. Connectivity Verification</h2>
+          <p>
+            The TOR Browser (version 15.0.18, Linux x86_64) was downloaded
+            directly from the official Tor Project website and launched inside
+            the isolated Ubuntu guest. The browser successfully established a
+            circuit into the Tor network and confirmed a working connection with
+            the default landing page reporting that the browser was correctly
+            configured to use Tor.
+          </p>
+          <p>
+            Security was then raised to the "Safest" level in Tor Browser's
+            Advanced Security Settings. This setting automatically disables
+            JavaScript on all sites, HTML5 media auto-play, and several other
+            high-risk browser features — functionally equivalent to running
+            NoScript in its most restrictive mode.
+          </p>
+          <div class="figure-row">
+            <figure class="figure">
+              <img src="../assets/cyb406/lab1-003.png" alt="Tor Browser Connect to Tor screen">
+              <figcaption>Connecting to the Tor network from inside the isolated guest.</figcaption>
+            </figure>
+            <figure class="figure">
+              <img src="../assets/cyb406/lab1-004.png" alt="Tor Browser security level set to Safest">
+              <figcaption>Security level raised to "Safest" — JavaScript disabled site-wide.</figcaption>
+            </figure>
+          </div>
+          <p>
+            A verified .onion v3 address (56-character format, ending in
+            <code>.onion</code>) was then compared against its equivalent Clear
+            Net (regular HTTPS) address:
+          </p>
+          <table class="report-table">
+            <thead>
+              <tr><th>Attribute</th><th>.onion (v3, via Tor)</th><th>Clear Net (HTTPS)</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Address structure</td><td>56-character random string + .onion</td><td>Human-readable domain name (e.g. nytimes.com)</td></tr>
+              <tr><td>Load time</td><td>Noticeably slower (multiple relay hops)</td><td>Fast, direct connection</td></tr>
+              <tr><td>Readability</td><td>Not human-readable / not memorable</td><td>Easy to read and remember</td></tr>
+            </tbody>
+          </table>
+          <div class="figure-row">
+            <figure class="figure">
+              <img src="../assets/cyb406/lab1-005.png" alt="DuckDuckGo loaded over regular HTTPS">
+              <figcaption>DuckDuckGo — Clear Net (regular HTTPS).</figcaption>
+            </figure>
+            <figure class="figure">
+              <img src="../assets/cyb406/lab1-006.png" alt="DuckDuckGo loaded over its .onion v3 address">
+              <figcaption>DuckDuckGo — .onion v3 address via Tor.</figcaption>
+            </figure>
+            <figure class="figure">
+              <img src="../assets/cyb406/lab1-007.png" alt="New York Times loaded over regular HTTPS">
+              <figcaption>The New York Times — Clear Net.</figcaption>
+            </figure>
+            <figure class="figure">
+              <img src="../assets/cyb406/lab1-008.png" alt="The Onion satire site loaded over Tor">
+              <figcaption>The Onion (satire site) — loaded via Tor.</figcaption>
+            </figure>
+          </div>
+          <p>
+            As expected, the .onion service was slower to load and used an
+            unreadable, randomly-generated address, while the Clear Net version
+            loaded quickly with a conventional, memorable domain name. This
+            trade-off is the direct cost of the extra relay hops and encryption
+            layers that give Tor its anonymity properties.
+          </p>
+        </section>
+
+        <section class="report-exercise">
+          <h2>3. Vulnerability Assessment</h2>
+          <p>
+            A DNS leak test (dnsleaktest.com, Extended Test) was run in two
+            conditions to evaluate whether the guest machine's real network
+            identity was exposed:
+          </p>
+          <table class="report-table">
+            <thead>
+              <tr><th>Condition</th><th>Public IP</th><th>DNS Resolver / ISP</th><th>Geolocation</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Via Tor Browser</td><td>185.220.101.129 (known Tor exit relay)</td><td>Cloudflare, Gigahost, MOJI, WoodyNet</td><td>Paris, France / Sandefjord, Norway</td></tr>
+              <tr><td>Regular (non-Tor) browser</td><td>98.97.77.173</td><td>Google Public DNS</td><td>Johannesburg, South Africa</td></tr>
+            </tbody>
+          </table>
+          <div class="figure-row">
+            <figure class="figure">
+              <img src="../assets/cyb406/lab1-009.png" alt="DNS leak test start screen via Tor Browser">
+              <figcaption>DNS leak test, via Tor — start screen.</figcaption>
+            </figure>
+            <figure class="figure">
+              <img src="../assets/cyb406/lab1-010.png" alt="DNS leak test extended results via Tor Browser">
+              <figcaption>DNS leak test, via Tor — extended results (Paris/Sandefjord resolvers).</figcaption>
+            </figure>
+            <figure class="figure">
+              <img src="../assets/cyb406/lab1-011.png" alt="DNS leak test start screen via regular browser">
+              <figcaption>DNS leak test, regular browser — start screen (Lagos, Nigeria).</figcaption>
+            </figure>
+            <figure class="figure">
+              <img src="../assets/cyb406/lab1-012.png" alt="DNS leak test extended results via regular browser">
+              <figcaption>DNS leak test, regular browser — extended results (Google Public DNS, Johannesburg).</figcaption>
+            </figure>
+          </div>
+          <p>
+            <strong>Analysis:</strong> No DNS leak was detected while using Tor
+            Browser — none of the resolving servers were tied to the real ISP or
+            the user's actual location (Lagos, Nigeria); instead, resolution
+            occurred through Tor relay infrastructure in Europe. The non-Tor
+            baseline test revealed a different but still non-local resolution
+            path through Google's public DNS, geolocated to South Africa rather
+            than the user's real city. This illustrates an important nuance:
+            even without a literal ISP match, an unprotected browser still
+            reveals a consistent, traceable DNS path that an observer on the
+            same network (e.g. an ISP or local network administrator) could
+            correlate with browsing activity. This is the core risk of a DNS
+            leak — even when the content of traffic is encrypted (as with HTTPS
+            or Tor's onion routing), a leaked DNS query still reveals which
+            domains a user is visiting, undermining the anonymity that Tor is
+            meant to provide.
+          </p>
+          <div class="callout">
+            <strong>Secondary finding:</strong> setting Tor Browser's security
+            level to "Safest" disables JavaScript, which caused the DNS leak
+            test page to hang indefinitely, since the site's results depend on
+            client-side scripting to render. Security had to be temporarily
+            lowered to "Standard" to complete the test, then restored to
+            "Safest" afterward — a practical example of the
+            security-versus-usability trade-off referenced throughout this
+            course: the strongest privacy configuration can also break
+            legitimate tooling, requiring deliberate, temporary, and documented
+            exceptions rather than leaving the browser permanently in a weaker
+            state.
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p class="footer-note">Made with HTML, CSS &amp; JS — and a bit of patience.</p>
+      <div class="footer-links">
+        <a href="mailto:rukanasidi@gmail.com" aria-label="Email">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+          <span>Email</span>
+        </a>
+        <a href="https://github.com/Rukanasidi" target="_blank" rel="noopener" aria-label="GitHub">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6 0 0 0-1.3-3.2 4.2 4.2 0 0 0-.1-3.2s-1.4-.4-3.1.8a10.8 10.8 0 0 0-5.2 0c-1.7-1.2-3.1-.8-3.1-.8a4.2 4.2 0 0 0-.1 3.2A4.6 4.6 0 0 0 6 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg>
+          <span>GitHub</span>
+        </a>
+        <a href="https://www.linkedin.com/in/rukayya-nasidi-1359771a4/" target="_blank" rel="noopener" aria-label="LinkedIn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v6h-4v-6a2 2 0 0 0-4 0v6h-4v-6a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+          <span>LinkedIn</span>
+        </a>
+      </div>
+      <p class="footer-copy">© <span id="year"></span> Rukayya</p>
+    </div>
+  </footer>
+
+  <script src="../script.js"></script>
+</body>
+</html>

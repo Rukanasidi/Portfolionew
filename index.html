@@ -52,10 +52,11 @@
         <p class="eyebrow">Hi, I'm</p>
         <h1>Rukayya</h1>
         <p class="hero-tagline">
-          A cybersecurity student and full-stack developer based in Kano, Nigeria.
+          A cybersecurity student and full-stack intern based in Nigeria.
           I like building things that work well, stay safe, and feel calm to use —
           and I'm slowly weaving this space together with projects from frontend,
-          backend, security, and machine learning as I finish them.
+          backend, security, and machine learning as I finish them. 
+          To start I am first working on the frontend!
         </p>
         <a href="#frontend" class="hero-cta">See what I'm building ↓</a>
       </div>
@@ -150,10 +151,111 @@
           </p>
         </header>
 
-        <div class="project-grid" data-category="school"></div>
-        <p class="empty-state" data-category="school">
-          Tidying up coursework — projects will land here soon.
-        </p>
+        <div class="project-grid" data-category="school">
+
+          <a class="project-card-link" href="reports/cyb406-lab1.html">
+            <div class="project-card">
+              <h3>Secure Investigative Environment (Tor Sandbox)</h3>
+              <p>
+                Built an isolated VirtualBox/Ubuntu sandbox with clipboard,
+                drag-and-drop, and shared folders disabled, then hardened
+                Tor Browser to its "Safest" security level. Verified no
+                identity leakage by comparing DNS resolution, exit-node IP,
+                and geolocation across Tor vs. regular browsing.
+              </p>
+              <div class="project-tags">
+                <span>Tor</span>
+                <span>VirtualBox</span>
+                <span>DNS Leak Testing</span>
+                <span>OPSEC</span>
+              </div>
+              <span class="card-cta">Read the full report →</span>
+            </div>
+          </a>
+
+          <a class="project-card-link" href="reports/cyb406-lab2.html">
+            <div class="project-card">
+              <h3>Advanced Encryption &amp; Digital Identity Management</h3>
+              <p>
+                Used GnuPG/Kleopatra to implement hybrid RSA + AES
+                encryption and digital signatures for authenticated,
+                confidential file exchange between two key pairs. Closed
+                with a personal security audit covering MFA setup and
+                social media privacy exposure across two platforms.
+              </p>
+              <div class="project-tags">
+                <span>GPG/PGP</span>
+                <span>RSA &amp; AES</span>
+                <span>Digital Signatures</span>
+                <span>Privacy Audit</span>
+              </div>
+              <span class="card-cta">Read the full report →</span>
+            </div>
+          </a>
+
+          <a class="project-card-link" href="reports/cyb402-week1.html">
+            <div class="project-card">
+              <h3>Steganography: Access Methods &amp; Data Hiding</h3>
+              <p>
+                Hid and recovered data in image and audio carriers using
+                Steghide (LSB substitution), then tested steganalysis
+                methods (file-size comparison, metadata inspection,
+                LSB-plane visualization) to detect it. Examined how the
+                same technique is abused for malware C2 and exfiltration,
+                and the legal implications of deliberate concealment.
+              </p>
+              <div class="project-tags">
+                <span>Steganography</span>
+                <span>Steghide</span>
+                <span>LSB</span>
+                <span>Steganalysis</span>
+              </div>
+              <span class="card-cta">Read the full report →</span>
+            </div>
+          </a>
+
+          <a class="project-card-link" href="reports/cyb402-week2-8.html">
+            <div class="project-card">
+              <h3>Steganography: Watermarking &amp; Countermeasures</h3>
+              <p>
+                Compared encryption vs. data hiding hands-on, built both
+                visible and invisible digital watermarks, and implemented
+                zero-width-character text steganography from scratch in
+                Python. Layered GPG encryption underneath Steghide
+                embedding as a defense-in-depth countermeasure, and tested
+                how compression destroys LSB-hidden payloads.
+              </p>
+              <div class="project-tags">
+                <span>Watermarking</span>
+                <span>Zero-width Unicode</span>
+                <span>Defense-in-Depth</span>
+                <span>Python</span>
+              </div>
+              <span class="card-cta">Read the full report →</span>
+            </div>
+          </a>
+
+          <a class="project-card-link" href="reports/cyb405-group-assessment.html">
+            <div class="project-card">
+              <h3>Kali Lab: Full-Spectrum Ethical Hacking</h3>
+              <p>
+                 8 labs in an isolated
+                VMware environment — recon, enumeration, Metasploit
+                exploitation, Ghidra malware analysis, SQL injection/XSS on
+                OWASP Juice Shop, mobile APK reverse engineering, and Nmap/
+                Scapy IDS evasion with a scripted DoS simulation.
+              </p>
+              <div class="project-tags">
+                <span>Kali Linux</span>
+                <span>Metasploit</span>
+                <span>Ghidra</span>
+                <span>SQLi / XSS</span>
+              </div>
+              <span class="card-cta">Read the full report →</span>
+            </div>
+          </a>
+
+        </div>
       </div>
     </section>
 
@@ -164,7 +266,7 @@
       <p class="footer-note">Made with HTML, CSS &amp; JS — and a bit of patience.</p>
 
       <div class="footer-links">
-        
+
         <a href="mailto:rukanasidi@gmail.com" aria-label="Email">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
           <span>Email</span>

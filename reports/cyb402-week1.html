@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Steganography: Access Methods &amp; Data Hiding — Rukayya</title>
+  <meta name="description" content="CYB402 Week 1: LSB steganography with Steghide, steganalysis, and the misuse of data hiding in cybercrime, by Rukayya.">
+
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>%F0%9F%A7%B6</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Caveat:wght@600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="nav-wrap">
+      <a href="../index.html#top" class="logo">Rukayya</a>
+      <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      <nav class="nav-links" id="nav-links">
+        <a href="../index.html#frontend">Frontend</a>
+        <a href="../index.html#backend">Backend</a>
+        <a href="../index.html#security">Cybersecurity</a>
+        <a href="../index.html#ml-ai">ML &amp; AI</a>
+        <a href="../index.html#school" class="active">School</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <header class="report-header lace">
+      <div class="report-header-inner">
+        <a class="back-link" href="../index.html#school">&larr; Back to School Projects</a>
+        <p class="eyebrow handwritten">CYB402 — Week 1</p>
+        <h1>Steganography: Access Methods &amp; Data Hiding</h1>
+        <p class="report-meta">
+          <span>Rukayya Nasidi</span>
+          <span>Miva Open University</span>
+          <span>Exercises 1–9</span>
+        </p>
+        <p class="report-summary">
+          Hid and recovered data in image and audio carriers using Steghide
+          (LSB substitution), then tested steganalysis methods to detect it.
+          Examined how the same technique is abused for malware C2 and
+          exfiltration, and the legal implications of deliberate concealment.
+        </p>
+        <div class="report-tags">
+          <span>Steganography</span>
+          <span>Steghide</span>
+          <span>LSB</span>
+          <span>Steganalysis</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="report-body">
+      <div class="report-body-inner">
+
+        <section class="report-exercise">
+          <h2>Exercise 1 — Installing a DHCPv6 Server</h2>
+          <p class="objective">Objective: install a DHCPv6 server on a Linux-based system.</p>
+          <p>
+            Updated and upgraded the system package list, installed the ISC
+            DHCP server package (<code>isc-dhcp-server</code>), which provides
+            both IPv4 and IPv6 support, and verified the installation and
+            service state with <code>systemctl status isc-dhcp-server</code>.
+          </p>
+          <p>
+            The installation completed without errors, and systemctl
+            automatically created service symlinks for both
+            <code>isc-dhcp-server.service</code> and
+            <code>isc-dhcp-server6.service</code>, confirming IPv6 support was
+            installed alongside IPv4. Checking the service status immediately
+            after installation showed a failed state with the message "not
+            configured to listen on any interfaces" — this is expected
+            behaviour for a fresh install: the DHCP daemon refuses to start
+            until an administrator explicitly configures which network
+            interface and address range it should manage. This distinction —
+            between a failed installation and a service that is installed
+            correctly but simply not yet configured — is an important
+            troubleshooting skill in itself.
+          </p>
+          <div class="figure-row">
+            <figure class="figure"><img src="../assets/cyb402/week1-000.png" alt="Terminal installing isc-dhcp-server"><figcaption>Installing isc-dhcp-server via apt.</figcaption></figure>
+            <figure class="figure"><img src="../assets/cyb402/week1-001.png" alt="Terminal unpacking isc-dhcp-server package"><figcaption>Package unpacking and symlink creation.</figcaption></figure>
+            <figure class="figure"><img src="../assets/cyb402/week1-002.png" alt="Terminal running systemctl status on the DHCP service"><figcaption>Checking service status with systemctl.</figcaption></figure>
+            <figure class="figure"><img src="../assets/cyb402/week1-003.png" alt="Terminal showing DHCP service failed state, not configured to listen on any interfaces"><figcaption>Expected "failed" state — not yet configured to listen on any interface.</figcaption></figure>
+          </div>
+        </section>
+
+        <section class="report-exercise">
+          <h2>Exercise 2 — Practical Steganography Tools</h2>
+          <p class="objective">Objective: practice using a steganography tool to hide and extract data from a file.</p>
+          <p>
+            Selected Steghide as the tool, installed via <code>apt install
+            steghide</code>. Used a JPEG cover image (Ubuntu's built-in
+            wallpaper set) since Steghide requires a JPEG, BMP, WAV, or AU
+            carrier file. Created a short text file containing a secret
+            message, embedded it with <code>steghide embed -cf cover.jpg -ef
+            secret.txt</code> (protected with a passphrase), then extracted it
+            back out with <code>steghide extract -sf cover.jpg</code> and
+            confirmed the recovered text matched the original exactly.
+          </p>
+          <p>
+            Steghide proved straightforward once the correct file type (JPEG
+            rather than PNG) was selected as the cover file. The command
+            syntax is minimal, and the tool gives clear, unambiguous
+            confirmation messages at each stage. The visual appearance of the
+            cover image was unchanged to the naked eye after embedding — the
+            core use of steganography. The main limitation encountered was
+            Steghide's narrow format support: it will not work with PNG cover
+            files, a common beginner mistake since PNG is Ubuntu's default
+            wallpaper format.
+          </p>
+          <div class="figure-row">
+            <figure class="figure"><img src="../assets/cyb402/week1-004.png" alt="Terminal installing steghide"><figcaption>Installing Steghide.</figcaption></figure>
+            <figure class="figure"><img src="../assets/cyb402/week1-005.png" alt="Terminal listing available Ubuntu wallpapers"><figcaption>Locating a JPEG cover image among Ubuntu's default wallpapers.</figcaption></figure>
+            <figure class="figure"><img src="../assets/cyb402/week1-006.png" alt="Terminal copying a wallpaper and attempting to use a PNG as cover, failing"><figcaption>First attempt with a PNG cover fails — Steghide needs JPEG/BMP/WAV/AU.</figcaption></figure>
+            <figure class="figure"><img src="../assets/cyb402/week1-007.png" alt="Terminal successfully embedding a secret message into a JPEG cover image"><figcaption>Successful embed into a JPEG cover, confirmed with "embedding ... done".</figcaption></figure>
+          </div>
+        </section>
+
+        <section class="report-exercise">
+          <h2>Exercise 3 — Detecting Hidden Data in Files</h2>
+          <p class="objective">Objective: explore methods for detecting hidden data using statistical and file signature analysis.</p>
+          <p>
+            The intended primary tool, StegExpose (a Java-based steganalysis
+            tool), could not be made to produce usable output despite a valid
+            installation, a valid JAR file, and correctly formatted input.
+            This is a known limitation: it has not been actively maintained
+            since around 2015 and has compatibility issues with modern Java
+            runtimes, confirmed by testing multiple invocation syntaxes
+            without success. Rather than a dead end, this was treated as a
+            genuine finding: security analysts frequently encounter
+            unmaintained or poorly documented tooling, and identifying that a
+            tool is unreliable — rather than assuming a hidden message is
+            therefore absent — is itself part of the analysis process.
+          </p>
+          <p>
+            As an alternative, a direct file-size comparison between the
+            original cover image (1,957,897 bytes) and the same image after
+            Steghide embedding (2,243,324 bytes) showed a difference of
+            roughly 285 KB — a substantial and easily detectable change for a
+            single short sentence of hidden text, demonstrating that simple
+            LSB embedding tools are not always size-neutral. Metadata
+            inspection with <code>exiftool</code> did not reveal any field
+            that explicitly indicated hidden content, which is expected, but
+            it did provide a clean baseline of the image's standard JPEG
+            properties for comparison.
+          </p>
+          <div class="figure-row">
+            <figure class="figure"><img src="../assets/cyb402/week1-008.png" alt="Terminal extracting the hidden secret message back out with steghide"><figcaption>Extracting the hidden message back out and confirming it matches.</figcaption></figure>
+            <figure class="figure"><img src="../assets/cyb402/week1-009.png" alt="File manager preview of the cover image, visually unchanged"><figcaption>Cover image preview — no visible artefacts after embedding.</figcaption></figure>
+            <figure class="figure"><img src="../assets/cyb402/week1-010.png" alt="Terminal attempting to run StegExpose steganalysis tool"><figcaption>StegExpose invocation attempts — no usable output produced.</figcaption></figure>
+            <figure class="figure"><img src="../assets/cyb402/week1-011.png" alt="Terminal downloading StegExpose jar file from GitHub"><figcaption>Fetching the StegExpose JAR directly from its GitHub repository.</figcaption></figure>
+          </div>
+          <div class="callout">
+            <strong>Summary of challenges:</strong> outdated/unmaintained
+            detection tooling produced no output despite correct usage,
+            illustrating that tool reliability is itself a practical
+            constraint in steganalysis. Detecting steganography purely by
+            visual inspection is not feasible — quantitative methods (file
+            size, metadata) are required. And a lack of hidden-data indicators
+            in metadata does not itself prove a file is clean, since
+            steganography is designed to avoid such traces.
+          </div>
+        </section>
+
+        <section class="report-exercise">
+          <h2>Exercise 4 — Steganography and Malware Communication</h2>
+          <p class="objective">Objective: explore the use of steganography in malware communication and data exfiltration.</p>
+          <p>
+            Created a harmless text file labelled as a simulated payload,
+            standing in for malicious content for lab purposes only, embedded
+            it into a cover image using Steghide (representing how an
+            attacker might conceal exfiltrated data or command instructions
+            inside an image file), then extracted and read it back to
+            simulate the attacker-side retrieval step.
+          </p>
+          <p>
+            Most network security controls — firewalls, antivirus, intrusion
+            detection systems — are built to inspect traffic for known
+            malicious signatures or suspicious file types such as executables
+            and scripts. An image file transmitted over an ordinary web
+            request does not trigger these controls, because a JPEG is
+            treated as benign content by default. By embedding stolen data or
+            attacker instructions inside such a file, an attacker can move
+            information across a monitored boundary while appearing to do
+            nothing more than share a photo.
+          </p>
+          <p>
+            From a legal and ethical standpoint, using steganography to
+            conceal data theft, malware communication, or the transfer of
+            illegal content does not reduce culpability — courts generally
+            treat deliberate concealment as an aggravating factor rather than
+            a mitigating one, since it demonstrates clear intent to evade
+            detection. The technology itself is ethically neutral; it is also
+            used legitimately for digital watermarking, copyright protection,
+            and secure communication for journalists or activists. It is the
+            intent and context of use that determines whether a given
+            application is ethical or unlawful.
+          </p>
+          <div class="figure-row">
+            <figure class="figure"><img src="../assets/cyb402/week1-012.png" alt="Terminal creating a simulated malicious payload text file"><figcaption>Creating a simulated payload file for the exercise.</figcaption></figure>
+            <figure class="figure"><img src="../assets/cyb402/week1-013.png" alt="Terminal embedding and extracting the simulated payload with steghide"><figcaption>Embedding the payload into a cover image and extracting it back out.</figcaption></figure>
+            <figure class="figure"><img src="../assets/cyb402/week1-014.png" alt="Terminal confirming the extracted payload text matches the original"><figcaption>Confirming the recovered payload matches exactly.</figcaption></figure>
+            <figure class="figure"><img src="../assets/cyb402/week1-015.png" alt="Terminal continuing exfiltration exercise"><figcaption>Full exfiltration-simulation command sequence.</figcaption></figure>
+          </div>
+        </section>
+
+        <section class="report-exercise">
+          <h2>Exercise 5 — Ethical and Legal Issues in Steganography</h2>
+          <p class="objective">Objective: examine the ethical concerns and legal ramifications of using steganography for illicit purposes.</p>
+          <p>
+            Steganography sits on a spectrum of legitimate and illegitimate
+            use cases. Legitimate applications include digital watermarking
+            for copyright protection, secure and deniable communication for
+            individuals in high-risk environments (such as journalists or
+            human rights workers operating under surveillance), and general
+            privacy-preserving communication. Illegitimate applications
+            include concealment of malware command-and-control traffic,
+            exfiltration of stolen data, and distribution of illegal content
+            disguised as innocuous files. Because the technique itself carries
+            no inherent malicious signature, ethical evaluation must focus on
+            the intent behind its use and the nature of the content being
+            concealed, rather than the technique itself.
+          </p>
+          <p>
+            Where steganography is used to facilitate an underlying crime,
+            the concealment itself does not create a separate legal shield. In
+            most jurisdictions, deliberately hiding evidence of a crime is
+            treated as an aggravating factor, potentially supporting
+            additional charges such as obstruction or intentional
+            concealment, on top of whatever charges apply to the underlying
+            offence. Organisations that fail to account for steganographic
+            exfiltration risk in their security controls may also face
+            regulatory consequences under data protection law if a breach
+            occurs through this channel and is later found to have been
+            reasonably foreseeable.
+          </p>
+        </section>
+
+        <section class="report-exercise">
+          <h2>Exercise 6 — Advanced Detection of Steganography</h2>
+          <p class="objective">Objective: explore advanced techniques for detecting steganography in digital files.</p>
+          <p>
+            Re-attempted automated steganalysis with StegExpose (unsuccessful
+            again), repeated the file-size comparison, and extracted and
+            visually compared the least-significant-bit (LSB) plane of a
+            stego image and a clean image using ImageMagick, reducing each to
+            1-bit depth to expose the low-order bit patterns where LSB
+            steganography embeds data.
+          </p>
+          <table class="report-table">
+            <thead><tr><th>Method</th><th>Effectiveness</th><th>Ease of Use</th></tr></thead>
+            <tbody>
+              <tr><td>StegExpose (statistical)</td><td>Inconclusive — failed to run reliably due to Java-runtime compatibility issues; no scores produced despite valid input.</td><td>Difficult — outdated tool (c. 2015), poor documentation, unclear CLI syntax.</td></tr>
+              <tr><td>File size comparison</td><td>Effective — revealed a ~285 KB increase after Steghide embedding.</td><td>Very easy — a single <code>ls -la</code> command.</td></tr>
+              <tr><td>LSB visual inspection</td><td>Moderately effective — a faint but visible structural irregularity appeared in the stego image at 1-bit depth, not present in the clean image.</td><td>Easy to run, but interpretation is subjective and requires practice.</td></tr>
+            </tbody>
+          </table>
+          <p>
+            A more reliable steganalysis workflow would combine multiple
+            independent signals rather than relying on any single method:
+            automated statistical tests (once run on properly maintained
+            tooling), file size and metadata comparison against a known-clean
+            baseline, and visual/LSB-plane inspection for a final
+            human-reviewed check. Because no single technique proved
+            conclusive on its own, layering methods — and cross-referencing
+            results — produced a far stronger case for the presence of hidden
+            data than any individual test.
+          </p>
+          <div class="figure-row">
+            <figure class="figure"><img src="../assets/cyb402/week1-016.png" alt="Terminal installing ImageMagick"><figcaption>Installing ImageMagick.</figcaption></figure>
+            <figure class="figure"><img src="../assets/cyb402/week1-017.png" alt="Terminal continuing ImageMagick setup"><figcaption>ImageMagick setup completing.</figcaption></figure>
+            <figure class="figure"><img src="../assets/cyb402/week1-018.png" alt="Terminal converting cover and clean images to 1-bit LSB plane"><figcaption>Reducing both images to 1-bit depth to expose the LSB plane.</figcaption></figure>
+            <figure class="figure"><img src="../assets/cyb402/week1-019.png" alt="Clean image LSB plane, mostly uniform black"><figcaption>Clean image's LSB plane — largely uniform.</figcaption></figure>
+            <figure class="figure"><img src="../assets/cyb402/week1-020.png" alt="Stego image LSB plane showing a faint structural irregularity"><figcaption>Stego image's LSB plane — a faint structural irregularity is visible.</figcaption></figure>
+          </div>
+        </section>
+
+        <section class="report-exercise">
+          <h2>Exercise 7 — Countermeasures and Mitigation in Steganography</h2>
+          <p class="objective">Objective: understand and apply countermeasures to improve steganography effectiveness.</p>
+          <p>
+            Encrypted a message using GPG with AES-256 symmetric encryption
+            before embedding, producing an encrypted <code>.gpg</code> file;
+            embedded the encrypted file (rather than the plaintext) into a
+            cover image using Steghide; then extracted the hidden file from
+            the image and successfully decrypted it with GPG, confirming both
+            layers functioned correctly together.
+          </p>
+          <p>
+            Combining encryption with steganography creates a
+            defence-in-depth effect: even if an attacker or analyst
+            successfully detects and extracts the hidden file (defeating the
+            steganographic layer), they are still left with an AES-256
+            encrypted blob that is computationally infeasible to read without
+            the correct passphrase. In this lab, the extraction step
+            succeeded exactly as expected, but the recovered file remained
+            unreadable until decrypted separately with GPG, demonstrating
+            that the two layers are independent: compromising one does not
+            compromise the other.
+          </p>
+          <p>
+            <strong>Adaptive algorithms:</strong> beyond encryption, adaptive
+            steganography algorithms adjust how and where data is embedded
+            based on the specific characteristics of the cover file — for
+            example, favouring high-texture or high-noise regions of an image
+            where small pixel changes are statistically less anomalous,
+            rather than embedding uniformly across the whole file. This makes
+            the resulting stego file more resistant to statistical detection
+            methods, because the embedded data blends more closely with the
+            image's natural noise profile. The trade-off is added complexity
+            compared to straightforward LSB tools such as Steghide.
+          </p>
+          <div class="figure-row">
+            <figure class="figure"><img src="../assets/cyb402/week1-021.png" alt="Terminal encrypting a message with GPG AES-256 before embedding with steghide"><figcaption>GPG AES-256 encryption, then Steghide embed of the encrypted file.</figcaption></figure>
+            <figure class="figure"><img src="../assets/cyb402/week1-022.png" alt="Terminal extracting and decrypting the encrypted hidden file, confirming both layers worked"><figcaption>Extraction + GPG decrypt confirming both protection layers functioned independently.</figcaption></figure>
+          </div>
+        </section>
+
+        <section class="report-exercise">
+          <h2>Exercise 8 — Steganography and Cybercrime</h2>
+          <p class="objective">Objective: analyse how steganography can be misused in cybercrime and how to mitigate these risks.</p>
+          <p>
+            Based on the technique demonstrated in Exercise 7, a plausible
+            cybercrime scenario involves two parties communicating covertly:
+            one party encrypts a message and embeds it inside an
+            ordinary-looking image, then uploads that image to a public
+            platform such as a forum, social media site, or cloud storage
+            service. The second party downloads the image and extracts the
+            hidden, still-encrypted data. Because the transmitted file is a
+            common image format and does not match any known malware
+            signature, standard network security tooling has no basis to flag
+            the transfer, allowing the communication to proceed undetected.
+          </p>
+          <p><strong>Recommended countermeasures:</strong></p>
+          <ul>
+            <li>Deploy content-aware inspection at network egress points that screens for statistical anomalies in transmitted images, rather than filtering purely by file type or known signatures.</li>
+            <li>Restrict or closely monitor uploads to personal cloud storage and unfamiliar image-hosting services from corporate networks.</li>
+            <li>Apply re-compression of outbound images at the network boundary; because LSB-based steganography is highly sensitive to recompression, this can passively destroy hidden payloads as a side effect of standard image processing.</li>
+            <li>Maintain staff awareness training, since most real-world exfiltration incidents still require an insider action or a successful phishing compromise to move the file out in the first place.</li>
+          </ul>
+        </section>
+
+        <section class="report-exercise">
+          <h2>Exercise 9 — Steganography and Compression</h2>
+          <p class="objective">Objective: explore the limitations of steganography related to file compression and modification.</p>
+          <p>
+            Took the stego image from Exercise 2 and converted it from JPEG
+            to PNG, then back to JPEG, to simulate the recompression that
+            commonly occurs when an image is re-saved, reformatted, or
+            uploaded to a third-party platform, then attempted to extract the
+            hidden message using the correct passphrase.
+          </p>
+          <p>
+            The extraction attempt failed outright, with Steghide reporting
+            that no data could be extracted even with the correct passphrase.
+            This confirms a fundamental limitation of least-significant-bit
+            steganography: the technique depends on the exact preservation of
+            specific pixel byte values, and any process that rewrites those
+            bytes — including format conversion, recompression, or resizing —
+            destroys the embedded data, regardless of whether the recipient
+            has the correct extraction passphrase. In practice, this means
+            LSB-based tools such as Steghide are poorly suited to scenarios
+            where the carrier file is likely to be re-processed, such as
+            images uploaded to social media platforms. This is also directly
+            relevant to the countermeasures in Exercise 8: deliberately
+            recompressing images at a network boundary is a practical,
+            low-cost way to neutralise this class of hidden-data transfer
+            without needing to first detect that hidden data is present.
+          </p>
+          <div class="figure-row">
+            <figure class="figure"><img src="../assets/cyb402/week1-023.png" alt="Terminal converting a stego image to PNG and back to JPEG, then failing to extract the hidden message"><figcaption>Recompression round-trip (JPEG → PNG → JPEG) destroys the hidden payload; extraction fails.</figcaption></figure>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p class="footer-note">Made with HTML, CSS &amp; JS — and a bit of patience.</p>
+      <div class="footer-links">
+        <a href="mailto:rukanasidi@gmail.com" aria-label="Email">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+          <span>Email</span>
+        </a>
+        <a href="https://github.com/Rukanasidi" target="_blank" rel="noopener" aria-label="GitHub">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6 0 0 0-1.3-3.2 4.2 4.2 0 0 0-.1-3.2s-1.4-.4-3.1.8a10.8 10.8 0 0 0-5.2 0c-1.7-1.2-3.1-.8-3.1-.8a4.2 4.2 0 0 0-.1 3.2A4.6 4.6 0 0 0 6 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg>
+          <span>GitHub</span>
+        </a>
+        <a href="https://www.linkedin.com/in/rukayya-nasidi-1359771a4/" target="_blank" rel="noopener" aria-label="LinkedIn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v6h-4v-6a2 2 0 0 0-4 0v6h-4v-6a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+          <span>LinkedIn</span>
+        </a>
+      </div>
+      <p class="footer-copy">© <span id="year"></span> Rukayya</p>
+    </div>
+  </footer>
+
+  <script src="../script.js"></script>
+</body>
+</html>

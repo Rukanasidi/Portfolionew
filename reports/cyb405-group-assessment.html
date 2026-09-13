@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kali Group Lab Assessment: Full-Spectrum Ethical Hacking — Rukayya</title>
+  <meta name="description" content="CYB405 group lab assessment: 8 labs covering recon, exploitation, malware analysis, web app hacking, wireless/mobile security, and IDS evasion, by Rukayya and a 10-person team.">
+
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>%F0%9F%A7%B6</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Caveat:wght@600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="nav-wrap">
+      <a href="../index.html#top" class="logo">Rukayya</a>
+      <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      <nav class="nav-links" id="nav-links">
+        <a href="../index.html#frontend">Frontend</a>
+        <a href="../index.html#backend">Backend</a>
+        <a href="../index.html#security">Cybersecurity</a>
+        <a href="../index.html#ml-ai">ML &amp; AI</a>
+        <a href="../index.html#school" class="active">School</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <header class="report-header lace">
+      <div class="report-header-inner">
+        <a class="back-link" href="../index.html#school">&larr; Back to School Projects</a>
+        <p class="eyebrow handwritten">CYB405 — Group Lab Assessment</p>
+        <h1>Full-Spectrum Ethical Hacking: 8 Labs on Kali Linux</h1>
+        <p class="report-meta">
+          <span>10-person group assessment</span>
+          <span>Miva Open University</span>
+          <span>Labs 1–8</span>
+        </p>
+        <p class="report-summary">
+          A group assessment run entirely inside an isolated VMware lab (Kali,
+          Metasploitable2, Windows Server), progressing from environment setup
+          through recon, enumeration, exploitation, malware reverse engineering,
+          web app hacking, mobile/wireless security, and IDS evasion. Screenshots
+          below are drawn from the shared team submission; anything identifying
+          individual teammates has been left out.
+        </p>
+        <div class="report-tags">
+          <span>Kali Linux</span>
+          <span>Metasploit</span>
+          <span>Nmap</span>
+          <span>Ghidra</span>
+          <span>SQLi / XSS</span>
+          <span>IDS Evasion</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="report-body">
+      <div class="report-body-inner">
+
+        <section class="report-exercise">
+          <h2>Lab 1 — Virtual Lab Setup &amp; Configuration</h2>
+          <p class="objective">Objective: establish a secure, functional, and fully isolated hacking environment for all subsequent labs.</p>
+          <p>
+            Kali Linux, Metasploitable2, and Windows Server 2019 were installed
+            in VMware and wired into a Host-Only network (VMnet1,
+            192.168.56.0/24) to keep the lab fully isolated from the external
+            internet. DHCP was configured to issue addresses starting from
+            192.168.56.101, giving each VM a predictable, static-like lease.
+          </p>
+          <p>
+            Connectivity testing surfaced a real troubleshooting case: pings
+            from Kali to Metasploitable2 worked immediately, but Kali to
+            Windows Server 2019 failed because the default Windows Defender
+            Firewall blocks ICMP Echo Requests. The fix was a new inbound
+            firewall rule on the Windows Server VM:
+          </p>
+          <pre><code>netsh advfirewall firewall add rule name="Allow ICMP Ping" dir=in action=allow protocol=icmpv4:8,any</code></pre>
+          <p>
+            A baseline Nmap scan (<code>nmap -sS -p- -T4 -oA baseline_scan
+            192.168.56.0/24</code>) established the starting port/service
+            picture for the whole subnet, and the entire setup — connectivity
+            checks, a filtered tshark capture, the baseline scan, and
+            .xml/.pcap reporting — was wrapped into a single Bash automation
+            script (<code>environment_setup.sh</code>) so the environment
+            could be rebuilt reproducibly.
+          </p>
+          <div class="figure-row">
+            <figure class="figure"><img src="../assets/cyb405/lab1-vm-overview.png" alt="VMware Workstation showing the Kali Linux, Metasploitable2, and Windows Server virtual machines"><figcaption>The three lab VMs configured in VMware Workstation.</figcaption></figure>
+            <figure class="figure"><img src="../assets/cyb405/lab1-network-editor.png" alt="VMware Virtual Network Editor showing VMnet1 configured as a Host-Only adapter on 192.168.56.0/24"><figcaption>VMnet1 configured as an isolated Host-Only network with DHCP enabled.</figcaption></figure>
+          </div>
+        </section>
+
+        <section class="report-exercise">
+          <h2>Lab 2 — Footprinting &amp; Reconnaissance</h2>
+          <p class="objective">Objective: gather as much information as possible about target systems using passive and active methods.</p>
+          <p>
+            The network mode was switched to NAT for the passive phase to
+            allow public-DNS lookups without exposing the internal lab.
+            <code>whois</code> pulled domain registration data (registrar,
+            name servers, creation/update dates) for a public test domain, and
+            <code>dig</code> added A, MX, NS, and TXT record detail — including
+            an SPF record showing the domain rejects mail entirely.
+          </p>
+          <p>
+            Switching back to Host-Only, an aggressive Nmap scan
+            (<code>nmap -sS -sV -O -p1-65535 -T4</code>) against
+            Metasploitable2 found 30 open ports and fingerprinted the OS as
+            Linux 2.6.9–2.6.33. A Nikto scan of the same host's web service
+            flagged an outdated Apache/2.2.8 build, an enabled HTTP TRACE
+            method (XST-vulnerable), and exposed directories such as
+            <code>/phpMyAdmin/</code>. Finally, an Nmap XML scan was
+            transformed into a browsable HTML report with
+            <code>xsltproc</code> for a human-readable topology view.
+          </p>
+          <div class="figure-row">
+            <figure class="figure"><img src="../assets/cyb405/lab2-nmap-html-report.png" alt="Browser-rendered Nmap scan HTML report showing open ports and service versions on the target"><figcaption>Nmap XML output rendered as a browsable HTML report via xsltproc.</figcaption></figure>
+          </div>
+        </section>
+
+        <section class="report-exercise">
+          <h2>Lab 3 — Network Scanning &amp; Enumeration</h2>
+          <p class="objective">Objective: move from open-port discovery to detailed service enumeration, SMB/RPC mapping, and a full vulnerability assessment.</p>
+          <p>
+            A Masscan sweep of the subnet illustrated a real speed/reliability
+            trade-off: a conservative 1,000 packets/sec run projected over 3
+            hours to complete, while pushing to 500,000 packets/sec finished
+            fast but returned almost nothing — the virtualized Host-Only
+            interface likely couldn't keep up with, or filtered, the
+            high-rate injection. Nmap's SMB enumeration scripts and
+            <code>rpcinfo</code> filled the gap instead, revealing an
+            outdated Samba 3.0.20-Debian install with a share literally
+            commented <em>"oh noes!"</em> that allowed anonymous login, and
+            <code>enum4linux -a</code> confirmed the WORKGROUP name and
+            several default usernames (administrator, guest, root).
+          </p>
+          <p>
+            A full Nessus Essentials "Basic Network Scan" against the subnet
+            closed the lab out with hard numbers: 5 critical vulnerabilities,
+            3 high, and 126 total findings on the Metasploitable2 host alone —
+            all raw outputs converted to HTML via <code>xsltproc</code> for
+            the final portfolio.
+          </p>
+          <div class="figure-row">
+            <figure class="figure"><img src="../assets/cyb405/lab3-nessus-scan.png" alt="Nessus vulnerability scan dashboard listing critical, high, and mixed-severity findings"><figcaption>Nessus Essentials scan results — 5 critical and 3 high-severity findings on the target host.</figcaption></figure>
+            <figure class="figure"><img src="../assets/cyb405/lab3-smb-enum-scan.png" alt="Terminal output of an Nmap SMB enumeration scan showing open ports and RPC services"><figcaption>Nmap SMB/RPC enumeration scan — 30 open ports including Samba, NFS, and mount services.</figcaption></figure>
+          </div>
+        </section>
+
+        <section class="report-exercise">
+          <h2>Lab 4 — System Hacking &amp; Privilege Escalation</h2>
+          <p class="objective">Objective: move from enumeration to active exploitation, gain a shell, and document remediation.</p>
+          <p>
+            Using the vsftpd 2.3.4 version identified in Lab 3,
+            <code>searchsploit</code> turned up a known backdoor exploit
+            (CVE-2011-2523). Metasploit's
+            <code>exploit/unix/ftp/vsftpd_234_backdoor</code> module fired it
+            against the target, spawning a Meterpreter session that dropped
+            straight into a root shell — no privilege escalation needed, since
+            the backdoor itself grants uid=0. A stable interactive shell was
+            then established with the classic
+            <code>python -c 'import pty; pty.spawn("/bin/bash")'</code> trick.
+          </p>
+          <p>
+            From there, evidence gathering pulled <code>/etc/passwd</code>
+            (full user list) and <code>/etc/shadow</code> (password hashes),
+            and <code>sudo -l</code> confirmed unrestricted root sudo access.
+            The remediation plan that followed: upgrade vsftpd past 3.0.5,
+            move password hashing off MD5 to SHA-256/512, apply regular
+            kernel/security patching, block legacy ports like FTP (21) and
+            Telnet (23), rotate default credentials, and set a default-deny
+            firewall policy.
+          </p>
+          <div class="figure-row">
+            <figure class="figure"><img src="../assets/cyb405/lab4-meterpreter-exploit.png" alt="Terminal showing Metasploit exploiting the vsftpd backdoor and opening a Meterpreter session"><figcaption>Metasploit triggering the vsftpd 2.3.4 backdoor and opening a Meterpreter session.</figcaption></figure>
+            <figure class="figure"><img src="../assets/cyb405/lab4-passwd-dump.png" alt="Terminal output of cat /etc/passwd showing the full list of system user accounts"><figcaption>Root shell access confirmed by reading /etc/passwd directly.</figcaption></figure>
+          </div>
+        </section>
+
+        <section class="report-exercise">
+          <h2>Lab 5 — Malware Analysis &amp; Reverse Engineering</h2>
+          <p class="objective">Objective: statically and dynamically analyze a malicious binary, identify IOCs, and write a detection rule.</p>
+          <p>
+            A sample ELF 64-bit binary was hashed (MD5/SHA256) and inspected
+            with <code>strings</code> and <code>readelf</code>, which showed
+            it had been packed with UPX and stripped of section headers —
+            both classic anti-analysis techniques. Loaded into Ghidra, the
+            decompiler mapped the entry point and rendered the disassembly as
+            readable C-like pseudocode, exposing internal function calls and
+            the binary's branching logic.
+          </p>
+          <p>
+            Dynamic analysis with <code>strace</code> caught the binary
+            reading <code>/etc/passwd</code> (credential harvesting) and
+            performing self-deletion (MITRE T1070.004). A live network
+            capture showed it calling out to a remote IP over QUIC on port
+            443 — an encrypted channel choice (MITRE T1573) specifically
+            suited to slipping past deep packet inspection. Cross-referencing
+            the SHA256 hash on VirusTotal got 39/65 vendor detections,
+            positively identifying it as part of the Merlin trojan family
+            (a C2 / post-exploitation framework). The lab closed with a
+            custom YARA rule built from these IOCs, validated against the
+            original sample.
+          </p>
+          <div class="figure-row">
+            <figure class="figure"><img src="../assets/cyb405/lab5-ghidra-decompiler.png" alt="Ghidra CodeBrowser showing disassembled function entry point and assembly listing for the malware sample"><figcaption>Ghidra's CodeBrowser mapping the malware's entry point and disassembly.</figcaption></figure>
+            <figure class="figure"><img src="../assets/cyb405/lab5-wireshark-c2.png" alt="Wireshark packet capture showing QUIC protocol traffic to a remote command and control IP address"><figcaption>Wireshark capture of the malware's QUIC-based C2 traffic to its remote IP.</figcaption></figure>
+          </div>
+        </section>
+
+        <section class="report-exercise">
+          <h2>Lab 6 — Web Application Hacking (SQL Injection &amp; XSS)</h2>
+          <p class="objective">Objective: identify and exploit SQL injection and XSS in a deliberately vulnerable web app (OWASP Juice Shop), then recommend mitigations.</p>
+          <p>
+            Gobuster mapped the attack surface first, turning up
+            <code>/login</code>, <code>/search</code>, and <code>/admin</code>
+            endpoints. A manual login-bypass injection —
+            <code>username=admin' OR '1'='1&amp;password=foo</code> — worked
+            immediately, confirming missing input sanitisation and no
+            prepared statements. <code>sqlmap</code> then automated the
+            exploitation, dumping usernames, emails, and password hashes
+            straight out of the <code>users</code> table.
+          </p>
+          <p>
+            XSS testing found both stored and reflected variants: a
+            <code>&lt;script&gt;alert('XSS')&lt;/script&gt;</code> payload
+            executed unsanitised in the browser via search/feedback fields,
+            confirming risk of session hijacking, cookie theft, and page
+            defacement. Burp Suite was used to intercept and tamper with
+            requests directly, confirming parameters weren't validated
+            server-side either. Recommendations: parameterised queries and
+            input validation for the injection side; output encoding, a
+            Content Security Policy, and input sanitisation for XSS; plus the
+            general basics — HTTPS, a WAF, and regular security testing.
+          </p>
+          <div class="figure-row">
+            <figure class="figure"><img src="../assets/cyb405/lab6-tool-install.png" alt="Terminal installing gobuster, sqlmap, and burpsuite on Kali Linux"><figcaption>Installing the Gobuster, sqlmap, and Burp Suite toolchain.</figcaption></figure>
+            <figure class="figure"><img src="../assets/cyb405/lab6-sqlmap-output.png" alt="sqlmap terminal output testing GET parameters for SQL injection and XSS vulnerabilities"><figcaption>sqlmap identifying an injectable GET parameter, also flagged as XSS-vulnerable.</figcaption></figure>
+          </div>
+        </section>
+
+        <section class="report-exercise">
+          <h2>Lab 7 — Wireless &amp; Mobile Security</h2>
+          <p class="objective">Objective: assess Wi-Fi network security and perform static/dynamic analysis on an Android APK.</p>
+          <p>
+            The wireless half of this lab hit a hardware wall: starting
+            monitor mode with <code>airmon-ng</code> failed because no
+            compatible wireless adapter existed inside the virtualized
+            VMware environment — only loopback, Ethernet, and Docker
+            interfaces were available, confirmed with <code>ip link show</code>.
+            WPA2 handshake capture and cracking simply weren't possible
+            without physical USB Wi-Fi hardware passed through to the VM, and
+            that limitation was documented rather than worked around.
+          </p>
+          <p>
+            The mobile half was more fruitful. DIVA (Damn Insecure and
+            Vulnerable App) was decompiled with <code>apktool</code>, and a
+            recursive <code>grep</code> for "password", "api_key", and
+            "secret" across the extracted resources turned up multiple
+            layout XML files clearly built to collect credentials. Loading
+            the APK into JADX-GUI for source review confirmed the worst case:
+            an <code>APICreds2Activity</code> class with hardcoded plaintext
+            credentials and an API key sitting directly in the Java source.
+            Fixes recommended: never store secrets in plaintext source, use
+            the Android Keystore or SQLCipher for local sensitive data, and
+            apply ProGuard/R8 obfuscation to raise the bar for reverse
+            engineering.
+          </p>
+          <div class="figure-row">
+            <figure class="figure"><img src="../assets/cyb405/lab7-jadx-gui.png" alt="JADX-GUI showing decompiled Android layout XML with a password field hint string"><figcaption>JADX-GUI source review — a layout file wired to a password-hint string resource.</figcaption></figure>
+          </div>
+        </section>
+
+        <section class="report-exercise">
+          <h2>Lab 8 — Evasion, IDS/Firewall Bypass &amp; DDoS Simulation</h2>
+          <p class="objective">Objective: evaluate IDS evasion techniques, detect honeypot behaviour, and run a controlled, low-impact DoS simulation.</p>
+          <p>
+            Several Nmap evasion techniques were tested against
+            Metasploitable2: MTU fragmentation (an initial <code>--mtu 24</code>
+            run showed no real fragmentation in Wireshark, but dropping to
+            <code>--mtu 16</code> produced genuinely fragmented IP packets),
+            a decoy scan (<code>-D RND:10</code>) mixing 10 random spoofed
+            IPs with the real attacker address, and data-length padding
+            (<code>--data-length 100</code>) to inflate SYN packets past
+            simple signature filters. A hand-crafted Scapy fragmentation
+            script split a 2 KB ICMP payload into 2 IP fragments and
+            confirmed the reassembled length in Wireshark byte-for-byte.
+          </p>
+          <p>
+            Honeypot detection used NULL, FIN, and Xmas scans — all three
+            violate the TCP spec in ways real honeypots often mishandle. The
+            target returned 2,933 RST|ACK packets with a consistent TTL of
+            64, exactly what a genuine Linux TCP/IP stack does and what most
+            low-interaction honeypots fail to replicate — concluding the
+            target was a real host, not a honeypot. Banner grabbing against
+            FTP, SSH, and HTTP confirmed legitimate, consistent service
+            banners as a second line of evidence.
+          </p>
+          <p>
+            For the DoS phase, running baseline/attack/recovery measurement
+            across four terminals manually was impractical, so the whole
+            workflow was scripted (<code>slowloris_auto.sh</code>): 200
+            connections held open for 60 seconds, HTTP/SSH/FTP availability
+            polled throughout, then 6 recovery measurements over the
+            following 30 seconds. Response time jumped from roughly 0.012s
+            at baseline to 49.93s under attack, then returned to baseline
+            within the recovery window — demonstrating both the impact of a
+            slow-connection DoS and the target's ability to recover cleanly
+            once it stopped.
+          </p>
+          <div class="figure-row">
+            <figure class="figure"><img src="../assets/cyb405/lab8-mtu-fragmentation.png" alt="Terminal output of an Nmap MTU fragmentation scan listing open ports on the target"><figcaption>Nmap MTU-fragmented scan (--mtu 16) against the target, producing genuinely fragmented packets.</figcaption></figure>
+            <figure class="figure"><img src="../assets/cyb405/lab8-slowloris-summary.png" alt="Terminal output of the Slowloris automation script's Wireshark filters and results summary section"><figcaption>The Slowloris automation script's built-in Wireshark filters and results-interpretation summary.</figcaption></figure>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p class="footer-note">Made with HTML, CSS &amp; JS — and a bit of patience.</p>
+      <div class="footer-links">
+        <a href="mailto:rukanasidi@gmail.com" aria-label="Email">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+          <span>Email</span>
+        </a>
+        <a href="https://github.com/Rukanasidi" target="_blank" rel="noopener" aria-label="GitHub">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6 0 0 0-1.3-3.2 4.2 4.2 0 0 0-.1-3.2s-1.4-.4-3.1.8a10.8 10.8 0 0 0-5.2 0c-1.7-1.2-3.1-.8-3.1-.8a4.2 4.2 0 0 0-.1 3.2A4.6 4.6 0 0 0 6 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg>
+          <span>GitHub</span>
+        </a>
+        <a href="https://www.linkedin.com/in/rukayya-nasidi-1359771a4/" target="_blank" rel="noopener" aria-label="LinkedIn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v6h-4v-6a2 2 0 0 0-4 0v6h-4v-6a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+          <span>LinkedIn</span>
+        </a>
+      </div>
+      <p class="footer-copy">© <span id="year"></span> Rukayya</p>
+    </div>
+  </footer>
+
+  <script src="../script.js"></script>
+</body>
+</html>
